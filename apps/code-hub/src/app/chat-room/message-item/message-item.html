@@ -1,0 +1,17 @@
+<div
+  class="flex items-start gap-2 p-2"
+  [class.justify-end]="isSentByActiveUser()"
+>
+  <div
+    class="max-w-[75%] rounded-lg px-4 py-2 shadow-sm"
+    [class.bg-primary-user]="!message.author.isBot"
+    [class.text-white]="!message.author.isBot"
+    [class.bg-primary-bot]="isBot()"
+  >
+    <p class="text-sm font-semibold">{{ message.author.name }}</p>
+    <p class="whitespace-pre-wrap">{{ message.content }}</p>
+    <span class="block text-xs text-gray-400 mt-1">
+      {{ message.createdAt | date:'shortTime' }}
+    </span>
+  </div>
+</div>
