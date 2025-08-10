@@ -1,0 +1,17 @@
+<form (submit)="onSubmit($event)" class="flex gap-2">
+  <input
+    class="flex-1 rounded-full border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+    type="text"
+    [(ngModel)]="draft"
+    name="message"
+    autocomplete="off"
+    placeholder="Message"
+    required
+  />
+  <button
+    class="rounded-full bg-blue-600 text-white px-5 py-2 text-sm hover:bg-blue-700"
+    type="submit"
+  >
+    Send
+  </button>
+</form>

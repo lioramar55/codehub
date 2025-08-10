@@ -1,0 +1,5 @@
+<div class="space-y-4">
+  @for (m of messages(); track m.id) {
+  <app-message-item [message]="m" />
+  }
+</div>

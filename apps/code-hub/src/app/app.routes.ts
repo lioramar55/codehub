@@ -1,5 +1,4 @@
 import { Route } from '@angular/router';
-import { ChatRoom } from './pages/chat-room/chat-room';
 
 export const appRoutes: Route[] = [
   {
@@ -9,11 +8,20 @@ export const appRoutes: Route[] = [
   },
   {
     path: 'chat',
-    component: ChatRoom,
-  },
-  {
-    path: 'chat/:roomId',
-    component: ChatRoom,
+    loadComponent: () =>
+      import('./components/chat-layout/chat-layout.component').then(
+        (m) => m.ChatLayoutComponent
+      ),
+    children: [
+      { path: '', redirectTo: 'general', pathMatch: 'full' },
+      {
+        path: ':roomId',
+        loadComponent: () =>
+          import('./components/chat-room/chat-room.component').then(
+            (m) => m.ChatRoomComponent
+          ),
+      },
+    ],
   },
   {
     path: '**',

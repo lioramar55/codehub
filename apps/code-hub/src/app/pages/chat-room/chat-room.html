@@ -1,8 +1,0 @@
-<div class="flex flex-col h-screen bg-bg-chat">
-  <chat-room-header
-    [roomName]="roomName()"
-    (roomNameChanged)="updateRoomName($event)"
-  ></chat-room-header>
-  <message-list class="flex-1" [messages]="messages()"></message-list>
-  <user-input (sendMessage)="sendMessage($event)"></user-input>
-</div>
