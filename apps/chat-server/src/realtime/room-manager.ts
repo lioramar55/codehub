@@ -10,6 +10,7 @@ import { getRoomHistoryWithUser } from '../services/message.repository';
 
 export class RoomManager {
   private participants: Map<string, User[]> = new Map(); // roomId -> participants[]
+  private participantsById: Map<string, Set<string>> = new Map(); // roomIds -> userIds[]
   private io: Server;
 
   constructor(io: Server) {
@@ -19,8 +20,14 @@ export class RoomManager {
   async addParticipant(user: User, roomId: string): Promise<void> {
     if (!this.participants.has(roomId)) {
       this.participants.set(roomId, []);
+      this.participantsById.set(roomId, new Set());
     }
 
+    if (this.participantsById.get(roomId)?.has(user.id)) {
+      return;
+    }
+
+    this.participantsById.get(roomId)?.add(user.id);
     const roomParticipants = this.participants.get(roomId)!;
     roomParticipants.push(user);
 
@@ -35,6 +42,7 @@ export class RoomManager {
         roomId,
         roomParticipants.filter((p) => p.id !== userId)
       );
+      this.participantsById.get(roomId)?.delete(userId);
       this.broadcastParticipants(roomId);
     }
   }
