@@ -1,6 +1,11 @@
 @let systemMessage = system(); @let chatMessage = message(); @if (systemMessage)
 {
-<div class="text-center text-xs text-slate-500 dark:text-slate-400">
+<div
+  class="text-center text-xs text-slate-500 dark:text-slate-400"
+  role="status"
+  aria-live="polite"
+  aria-atomic="true"
+>
   @if (systemMessage.kind === 'join') { {{ systemMessage.user.name }} joined the
   chat } @if (systemMessage.kind === 'leave') {
   {{ systemMessage.user.name }} left the chat }
@@ -17,7 +22,7 @@ chatMessage.author.id === currentUserId();
     width="40"
     height="40"
     class="h-10 w-10 rounded-full"
-    alt="avatar"
+    [attr.alt]="chatMessage.author.name + ' avatar'"
   />
 
   <!-- Message bubble with timestamp inside -->
@@ -39,13 +44,14 @@ chatMessage.author.id === currentUserId();
       </div>
       }
       <div class="ps-2">{{ chatMessage.content }}</div>
-      <div
+      <time
         class="mt-1 text-[10px] opacity-70"
         [class.self-start]="isSelf"
         [class.self-end]="!isSelf"
+        [attr.datetime]="chatMessage.createdAt | date : 'yyyy-MM-ddTHH:mm:ss'"
       >
         {{ chatMessage.createdAt | date : 'shortTime' }}
-      </div>
+      </time>
     </div>
   </div>
 </div>

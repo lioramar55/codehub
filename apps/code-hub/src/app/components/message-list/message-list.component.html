@@ -1,11 +1,24 @@
-<div class="space-y-3 flex flex-col">
+<ul class="space-y-3 flex flex-col" role="list" aria-label="Message list">
   @for (entry of timeline(); track entry.createdAt) { @if (entry.type ===
   'system') {
-  <app-message-item [system]="entry.system" [currentUserId]="currentUserId()" />
+  <li role="listitem">
+    <app-message-item
+      [system]="entry.system"
+      [currentUserId]="currentUserId()"
+    />
+  </li>
   } @else {
-  <app-message-item
-    [message]="entry.message"
-    [currentUserId]="currentUserId()"
-  />
+  <li role="listitem">
+    <app-message-item
+      [message]="entry.message"
+      [currentUserId]="currentUserId()"
+    />
+  </li>
   } }
-</div>
+  <li class="sr-only" aria-live="polite" aria-atomic="true">
+    New messages will appear above
+  </li>
+  <li class="sr-only" aria-live="polite" aria-relevant="additions">
+    End of messages
+  </li>
+</ul>
