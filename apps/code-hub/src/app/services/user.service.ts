@@ -1,12 +1,37 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { User } from '@codehub/shared-models';
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
-  readonly currentUser = signal<User>(this.generateUser());
+  private storageKey = 'codehub.currentUser';
+  readonly currentUser = signal<User>(this.loadOrGenerateUser());
 
   updateUser(patch: Partial<User>) {
-    this.currentUser.update((u) => ({ ...u, ...patch }));
+    this.currentUser.update((u) => {
+      const updated = { ...u, ...patch } as User;
+      this.persist(updated);
+      return updated;
+    });
+  }
+
+  private loadOrGenerateUser(): User {
+    try {
+      const raw = localStorage.getItem(this.storageKey);
+      if (raw) return JSON.parse(raw) as User;
+    } catch {
+      console.error('Error loading user from localStorage');
+    }
+    const user = this.generateUser();
+    this.persist(user);
+    return user;
+  }
+
+  private persist(user: User) {
+    try {
+      localStorage.setItem(this.storageKey, JSON.stringify(user));
+    } catch {
+      console.error('Error persisting user to localStorage');
+    }
   }
 
   private generateUser(): User {
