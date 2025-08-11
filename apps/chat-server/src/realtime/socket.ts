@@ -60,9 +60,11 @@ export function setupSocket(io: Server) {
 
         io.to(GENERAL_ROOM_ID).emit('message:new', message);
 
-        // Bot check
-        if (BotService.isProgrammingQuestion(payload.content)) {
-          try {
+        try {
+          const isProgrammingQuestion = await BotService.isProgrammingQuestion(
+            payload.content
+          );
+          if (isProgrammingQuestion) {
             const botReply = await BotService.askBot(payload.content);
             const botMessage: Message = {
               id: crypto.randomUUID(),
@@ -72,9 +74,9 @@ export function setupSocket(io: Server) {
             };
 
             io.to(GENERAL_ROOM_ID).emit('message:new', botMessage);
-          } catch (err) {
-            console.error('Bot error:', err);
           }
+        } catch (err) {
+          console.error('Bot error:', err);
         }
       }
     );

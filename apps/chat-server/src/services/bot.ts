@@ -3,30 +3,18 @@ import { GoogleGenAI } from '@google/genai';
 // The client gets the API key from the environment variable `GEMINI_API_KEY`.
 const ai = new GoogleGenAI({});
 
-// Basic filter for programming-related questions
-function isProgrammingQuestion(content: string): boolean {
-  const keywords = [
-    'angular',
-    'typescript',
-    'javascript',
-    'node',
-    'express',
-    'react',
-    'vue',
-    'frontend',
-    'backend',
-    'full stack',
-    'http',
-    'api',
-    'database',
-    'sql',
-    'nosql',
-    'html',
-    'css',
-  ];
+async function isProgrammingQuestion(content: string): Promise<boolean> {
+  const contents = `
+answer in yes or no only.
+Is the following question related to web development, full stack engineering, web framework, angular, css, javascript, react etc..
+question: ${content}
+  `;
+  const response = await ai.models.generateContent({
+    model: 'gemini-2.5-flash',
+    contents,
+  });
 
-  const lowerContent = content.toLowerCase();
-  return keywords.some((k) => lowerContent.includes(k));
+  return response.text.toLocaleLowerCase().includes('yes');
 }
 
 async function askBot(question: string): Promise<string> {
