@@ -3,3 +3,26 @@
 @tailwind utilities;
 
 /* You can add global styles to this file, and also import other style files */
+
+/* Mobile viewport height fixes */
+@supports (-webkit-touch-callout: none) {
+  /* iOS Safari */
+  .h-screen {
+    height: -webkit-fill-available;
+  }
+}
+
+/* Ensure proper mobile layout */
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Mobile-specific height adjustments */
+@media (max-width: 767px) {
+  .h-screen {
+    height: 100vh;
+    height: 100dvh; /* Dynamic viewport height for mobile */
+  }
+}

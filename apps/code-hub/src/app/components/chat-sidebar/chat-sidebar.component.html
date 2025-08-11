@@ -1,5 +1,5 @@
 <div
-  class="w-80 h-screen bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700 flex flex-col overflow-hidden"
+  class="w-full h-full bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700 flex flex-col overflow-hidden"
 >
   <!-- Header -->
   <div
@@ -9,9 +9,12 @@
       Chats
     </h1>
     <button
-      class="w-9 h-9 rounded-lg border-none bg-primary-user hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white flex items-center justify-center cursor-pointer transition-all duration-200 hover:scale-105 active:scale-95"
+      class="w-9 h-9 rounded-lg border-none bg-primary-user hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white flex items-center justify-center cursor-pointer transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation"
       (click)="startCreatingRoom()"
+      (keydown.enter)="startCreatingRoom()"
+      (keydown.space)="startCreatingRoom()"
       title="New Chat"
+      aria-label="Create new chat"
     >
       <svg
         class="w-5 h-5"
@@ -54,9 +57,12 @@
       />
       <button
         *ngIf="filterText()"
-        class="absolute right-2 w-6 h-6 border-none bg-transparent text-slate-400 dark:text-slate-500 cursor-pointer flex items-center justify-center rounded transition-all duration-200 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-600 dark:hover:text-slate-300"
+        class="absolute right-2 w-6 h-6 border-none bg-transparent text-slate-400 dark:text-slate-500 cursor-pointer flex items-center justify-center rounded transition-all duration-200 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-600 dark:hover:text-slate-300 touch-manipulation"
         (click)="clearFilter()"
+        (keydown.enter)="clearFilter()"
+        (keydown.space)="clearFilter()"
         title="Clear search"
+        aria-label="Clear search"
       >
         <svg
           class="w-4 h-4"
@@ -85,9 +91,12 @@
         New Chat
       </h3>
       <button
-        class="w-7 h-7 border-none bg-transparent text-slate-500 dark:text-slate-400 cursor-pointer flex items-center justify-center rounded transition-all duration-200 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-700 dark:hover:text-slate-200"
+        class="w-7 h-7 border-none bg-transparent text-slate-500 dark:text-slate-400 cursor-pointer flex items-center justify-center rounded transition-all duration-200 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-700 dark:hover:text-slate-200 touch-manipulation"
         (click)="cancelCreatingRoom()"
+        (keydown.enter)="cancelCreatingRoom()"
+        (keydown.space)="cancelCreatingRoom()"
         title="Cancel"
+        aria-label="Cancel creating room"
       >
         <svg
           class="w-5 h-5"
@@ -112,18 +121,24 @@
         [ngModel]="newRoomName()"
         (ngModelChange)="newRoomName.set($event)"
         (keyup.enter)="createRoom()"
+        tabindex="0"
+        (keyup.enter)="createRoom()"
       />
       <div class="flex gap-2 justify-end">
         <button
-          class="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-300 text-sm font-medium cursor-pointer transition-all duration-200 hover:bg-slate-50 dark:hover:bg-slate-600 hover:border-slate-400 dark:hover:border-slate-500"
+          class="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-300 text-sm font-medium cursor-pointer transition-all duration-200 hover:bg-slate-50 dark:hover:bg-slate-600 hover:border-slate-400 dark:hover:border-slate-500 touch-manipulation"
           (click)="cancelCreatingRoom()"
+          (keydown.enter)="cancelCreatingRoom()"
+          (keydown.space)="cancelCreatingRoom()"
         >
           Cancel
         </button>
         <button
-          class="px-4 py-2 border-none rounded-md bg-primary-user hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white text-sm font-medium cursor-pointer transition-all duration-200 disabled:bg-slate-400 dark:disabled:bg-slate-600 disabled:cursor-not-allowed"
+          class="px-4 py-2 border-none rounded-md bg-primary-user hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white text-sm font-medium cursor-pointer transition-all duration-200 disabled:bg-slate-400 dark:disabled:bg-slate-600 disabled:cursor-not-allowed touch-manipulation"
           [disabled]="!newRoomName().trim()"
           (click)="createRoom()"
+          (keydown.enter)="createRoom()"
+          (keydown.space)="createRoom()"
         >
           Create
         </button>
@@ -135,13 +150,17 @@
   <div class="flex-1 overflow-y-auto py-2">
     <div
       *ngFor="let room of filteredRooms()"
-      class="flex items-center px-5 py-3 cursor-pointer transition-all duration-200 border-l-3 border-transparent hover:bg-slate-50 dark:hover:bg-slate-800"
+      class="flex items-center px-4 py-3 cursor-pointer transition-all duration-200 border-l-3 border-transparent hover:bg-slate-50 dark:hover:bg-slate-800 active:bg-slate-100 dark:active:bg-slate-700 touch-manipulation"
       [class.bg-blue-50]="isRoomActive(room)"
       [class.dark:bg-blue-900]="isRoomActive(room)"
       [class.border-primary-user]="isRoomActive(room)"
       (click)="selectRoom(room)"
+      (keydown.enter)="selectRoom(room)"
+      (keydown.space)="selectRoom(room)"
       tabindex="0"
-      (keyup.enter)="selectRoom(room)"
+      role="button"
+      [attr.aria-label]="'Select ' + room.name + ' chat'"
+      [attr.aria-current]="isRoomActive(room) ? 'page' : null"
     >
       <div class="mr-3 flex-shrink-0">
         <div
@@ -157,6 +176,22 @@
           {{ room.name }}
         </div>
         <div class="text-xs text-slate-500 dark:text-slate-400">Active</div>
+      </div>
+      <!-- Mobile arrow indicator -->
+      <div class="md:hidden ml-2">
+        <svg
+          class="w-4 h-4 text-slate-400 dark:text-slate-500"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M9 5l7 7-7 7"
+          ></path>
+        </svg>
       </div>
     </div>
 

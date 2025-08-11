@@ -1,4 +1,11 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import {
+  Component,
+  inject,
+  signal,
+  computed,
+  Output,
+  EventEmitter,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -16,6 +23,8 @@ export class ChatSidebarComponent {
   private chatService = inject(ChatService);
   private router = inject(Router);
   readonly theme = inject(ThemeService);
+
+  @Output() roomSelected = new EventEmitter<void>();
 
   // Signals
   readonly rooms = this.chatService.availableRooms;
@@ -38,6 +47,7 @@ export class ChatSidebarComponent {
   selectRoom(room: Room): void {
     this.chatService.joinRoom(room);
     this.router.navigate(['/chat', room.id]);
+    this.roomSelected.emit();
   }
 
   startCreatingRoom(): void {
@@ -55,6 +65,7 @@ export class ChatSidebarComponent {
     if (name) {
       this.chatService.createRoom(name);
       this.cancelCreatingRoom();
+      this.roomSelected.emit();
     }
   }
 
