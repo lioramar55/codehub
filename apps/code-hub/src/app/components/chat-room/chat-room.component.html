@@ -27,7 +27,7 @@
   </header>
 
   <!-- Messages -->
-  <main class="flex-1 overflow-y-auto p-4 bg-bg-chat">
+  <main #scrollable class="flex-1 overflow-y-auto p-4 bg-bg-chat">
     <app-message-list
       [timeline]="timeline()"
       [currentUserId]="currentUser().id"
