@@ -6,6 +6,7 @@ const GENERAL_ROOM_ID = 'general';
 const NG_GURU = { id: 'ng-guro', name: 'Ng Guro', isBot: true };
 export function setupSocket(io: Server) {
   let participants: User[] = [];
+  let messageTimestamps: number[] = [];
 
   io.on('connection', (socket) => {
     let self: User | null = null;
@@ -64,7 +65,30 @@ export function setupSocket(io: Server) {
           const isProgrammingQuestion = await BotService.isProgrammingQuestion(
             payload.content
           );
+
           if (isProgrammingQuestion) {
+            const nowMs = Date.now();
+            const oneMinuteAgo = nowMs - 60_000;
+            messageTimestamps = messageTimestamps.filter(
+              (ts) => ts > oneMinuteAgo
+            );
+
+            if (messageTimestamps.length >= 5) {
+              const botMessage: Message = {
+                id: crypto.randomUUID(),
+                author: NG_GURU,
+                content:
+                  'NG Guru limit reached. Please wait a minute and try again (limit is 5 messages per minute).',
+                createdAt: new Date().toISOString(),
+              };
+
+              socket.emit('message:new', botMessage);
+              return;
+            }
+
+            // Record current message timestamp
+            messageTimestamps.push(nowMs);
+
             const botReply = await BotService.askBot(payload.content);
             const botMessage: Message = {
               id: crypto.randomUUID(),
@@ -77,6 +101,16 @@ export function setupSocket(io: Server) {
           }
         } catch (err) {
           console.error('Bot error:', err);
+
+          const botMessage: Message = {
+            id: crypto.randomUUID(),
+            author: NG_GURU,
+            content:
+              'NG Guru is experiencing difficulties, please try again later.',
+            createdAt: new Date().toISOString(),
+          };
+
+          socket.emit('message:new', botMessage);
         }
       }
     );
