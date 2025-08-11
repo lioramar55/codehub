@@ -5,7 +5,7 @@
 >
   <label class="sr-only" for="message-input">Message</label>
   <input
-    class="flex-1 rounded-full border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
+    class="flex-1 rounded-full border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-blue-500 dark:focus:border-blue-400 transition-all duration-200 hover:border-gray-400 dark:hover:border-slate-500"
     type="text"
     [(ngModel)]="draft"
     (input)="onInput()"
@@ -13,11 +13,93 @@
     name="message"
     id="message-input"
     autocomplete="off"
-    placeholder="Message"
+    placeholder="Type your message..."
     required
   />
+
+  <!-- Mobile-Optimized Bot Toggle Button -->
   <button
-    class="rounded-full bg-primary-user text-white px-5 py-2 text-sm hover:brightness-110"
+    type="button"
+    (click)="toggleBotMode()"
+    [disabled]="isToggling()"
+    class="relative group flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2 rounded-full border transition-all duration-300 ease-in-out hover:scale-105 active:scale-95 focus-visible:outline-none disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none min-w-0"
+    [ngClass]="{
+      'bg-gradient-to-r from-blue-500 to-blue-600 border-blue-500 shadow-lg shadow-blue-500/25 text-white ai-glow':
+        isSentToBot(),
+      'bg-white dark:bg-slate-700 border-gray-200 dark:border-slate-600 text-gray-600 dark:text-slate-300 hover:border-blue-300 dark:hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400':
+        !isSentToBot()
+    }"
+    [attr.aria-label]="
+      isSentToBot() ? 'Disable bot response' : 'Enable bot response'
+    "
+    title="Toggle AI assistant"
+  >
+    <!-- Animated Icon Container -->
+    <div class="relative flex-shrink-0">
+      @if (isToggling()) {
+      <!-- Loading State: Spinning Icon -->
+      <svg
+        class="w-4 h-4 sm:w-5 sm:h-5 animate-spin"
+        fill="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1H5C3.9 1 3 1.9 3 3V21C3 22.1 3.9 23 5 23H19C20.1 23 21 22.1 21 21V9ZM19 9H14V4H5V21H19V9ZM16 12C16 10.9 15.1 10 14 10H10C8.9 10 8 10.9 8 12V16C8 17.1 8.9 18 10 18H14C15.1 18 16 17.1 16 16V12ZM14 16H10V12H14V16Z"
+        />
+      </svg>
+      } @else if (isSentToBot()) {
+      <!-- Active State: Animated Robot Icon -->
+      <svg
+        class="w-4 h-4 sm:w-5 sm:h-5 transition-all duration-300 animate-pulse"
+        fill="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1H5C3.9 1 3 1.9 3 3V21C3 22.1 3.9 23 5 23H19C20.1 23 21 22.1 21 21V9ZM19 9H14V4H5V21H19V9ZM16 12C16 10.9 15.1 10 14 10H10C8.9 10 8 10.9 8 12V16C8 17.1 8.9 18 10 18H14C15.1 18 16 17.1 16 16V12ZM14 16H10V12H14V16Z"
+        />
+      </svg>
+      } @else {
+      <!-- Inactive State: Static Robot Icon -->
+      <svg
+        class="w-4 h-4 sm:w-5 sm:h-5 transition-all duration-300"
+        fill="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1H5C3.9 1 3 1.9 3 3V21C3 22.1 3.9 23 5 23H19C20.1 23 21 22.1 21 21V9ZM19 9H14V4H5V21H19V9ZM16 12C16 10.9 15.1 10 14 10H10C8.9 10 8 10.9 8 12V16C8 17.1 8.9 18 10 18H14C15.1 18 16 17.1 16 16V12ZM14 16H10V12H14V16Z"
+        />
+      </svg>
+      }
+
+      <!-- Status Indicator -->
+      @if (isSentToBot() && !isToggling()) {
+      <div
+        class="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 w-2 h-2 sm:w-3 sm:h-3 bg-green-400 border border-white dark:border-slate-800 rounded-full status-dot-pulse"
+      ></div>
+      }
+    </div>
+
+    <!-- Text Label - Hidden on very small screens -->
+    <span
+      class="text-xs sm:text-sm font-semibold transition-all duration-300 hidden sm:inline"
+    >
+      @if (isToggling()) { Toggling... } @else if (isSentToBot()) { AI Active }
+      @else { AI }
+    </span>
+
+    <!-- Mobile-only short label -->
+    <span class="text-xs font-semibold transition-all duration-300 sm:hidden">
+      @if (isToggling()) { ... } @else if (isSentToBot()) { AI } @else { AI }
+    </span>
+
+    <!-- Hover Effect -->
+    <div
+      class="absolute inset-0 rounded-full bg-gradient-to-r from-blue-400/20 to-purple-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+    ></div>
+  </button>
+
+  <button
+    class="rounded-full bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 sm:px-5 py-2 text-sm font-semibold transition-all duration-200 hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl hover:shadow-blue-500/25 focus-visible:outline-none"
     type="submit"
     aria-label="Send message"
   >

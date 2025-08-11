@@ -69,10 +69,10 @@ export class ChatRoomComponent implements OnInit {
     }
   }
 
-  onSendText(text: string) {
+  onSendText(data: { content: string; isSentToBot: boolean }) {
     // Always scroll when I am the sender
     this.forceScrollNextChange.set(true);
-    this.chat.sendMessage(text);
+    this.chat.sendMessage(data.content, data.isSentToBot);
   }
 
   defaultAvatar(seed: string) {

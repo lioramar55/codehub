@@ -56,8 +56,13 @@ export class RealtimeGatewayService {
   }
 
   // Message handling
-  sendMessage(author: Participant, content: string, roomId: string): void {
-    this.socket?.emit('message:send', { author, content, roomId });
+  sendMessage(
+    author: Participant,
+    content: string,
+    roomId: string,
+    isSentToBot = false
+  ): void {
+    this.socket?.emit('message:send', { author, content, roomId, isSentToBot });
   }
 
   onMessageNew(): Observable<ChatEvent> {

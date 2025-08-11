@@ -22,4 +22,5 @@ export interface ChatEvent {
   user?: User; // only for system messages
   createdAt: string;
   roomId?: string;
+  isSentToBot?: boolean; // indicates if this message should trigger a bot response
 }

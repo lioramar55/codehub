@@ -111,14 +111,15 @@ export class ChatService {
     this.realtime.joinRoom(this.userService.currentUser(), room.id);
   }
 
-  sendMessage(content: string): void {
+  sendMessage(content: string, isSentToBot = false): void {
     const currentRoom = this.currentRoom();
     if (!currentRoom) return;
 
     this.realtime.sendMessage(
       this.userService.currentUser(),
       content,
-      currentRoom.id
+      currentRoom.id,
+      isSentToBot
     );
   }
 

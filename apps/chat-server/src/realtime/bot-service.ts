@@ -17,7 +17,8 @@ export class BotHandler {
     socket: Socket,
     author: User,
     content: string,
-    roomId: string
+    roomId: string,
+    isSentToBot = false
   ): Promise<void> {
     // Upsert user (in case new info)
     await createUser(author);
@@ -26,13 +27,17 @@ export class BotHandler {
     const userMessage = this.messageManager.createUserMessage(
       author,
       content,
-      roomId
+      roomId,
+      isSentToBot
     );
     await this.messageManager.saveMessage(userMessage);
     this.messageManager.broadcastMessage(userMessage);
 
-    // Check if it's a programming question and handle bot response
-    await this.handleBotResponse(socket, content, roomId);
+    // Only trigger bot response if explicitly requested
+    console.log('isSentToBot', isSentToBot);
+    if (isSentToBot) {
+      await this.handleBotResponse(socket, content, roomId);
+    }
   }
 
   private async handleBotResponse(

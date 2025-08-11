@@ -38,7 +38,8 @@ export async function initializeDatabase() {
         kind VARCHAR(50),
         user_id VARCHAR(255) REFERENCES users(id) ON DELETE SET NULL,
         room_id VARCHAR(255) REFERENCES rooms(id) ON DELETE CASCADE,
-        created_at TIMESTAMP WITH TIME ZONE NOT NULL
+        created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+        is_sent_to_bot BOOLEAN DEFAULT FALSE
       )
     `);
 

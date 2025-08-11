@@ -43,7 +43,12 @@ export class MessageManager {
     };
   }
 
-  createUserMessage(author: User, content: string, roomId: string): ChatEvent {
+  createUserMessage(
+    author: User,
+    content: string,
+    roomId: string,
+    isSentToBot = false
+  ): ChatEvent {
     return {
       id: crypto.randomUUID(),
       user: author,
@@ -51,6 +56,7 @@ export class MessageManager {
       createdAt: new Date().toISOString(),
       roomId,
       type: 'user',
+      isSentToBot,
     };
   }
 

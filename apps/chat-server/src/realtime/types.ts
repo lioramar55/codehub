@@ -18,6 +18,7 @@ export interface MessageSendPayload {
   author: User;
   content: string;
   roomId: string;
+  isSentToBot?: boolean;
 }
 
 export interface TypingPayload {

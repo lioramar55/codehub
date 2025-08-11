@@ -100,8 +100,14 @@ export class EventHandlers {
     socket: Socket,
     payload: MessageSendPayload
   ): Promise<void> {
-    const { author, content, roomId } = payload;
-    await this.botHandler.handleUserMessage(socket, author, content, roomId);
+    const { author, content, roomId, isSentToBot = false } = payload;
+    await this.botHandler.handleUserMessage(
+      socket,
+      author,
+      content,
+      roomId,
+      isSentToBot
+    );
   }
 
   async createOrUpdateUser(payload: User): Promise<void> {

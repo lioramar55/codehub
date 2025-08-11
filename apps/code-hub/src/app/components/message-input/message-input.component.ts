@@ -1,11 +1,4 @@
-import {
-  Component,
-  EventEmitter,
-  Output,
-  inject,
-  input,
-  signal,
-} from '@angular/core';
+import { Component, inject, input, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RealtimeGatewayService } from '../../services/realtime-gateway.service';
@@ -19,7 +12,10 @@ import { ChatService } from '../../services/chat.service';
   templateUrl: './message-input.component.html',
 })
 export class MessageInputComponent {
-  @Output() send = new EventEmitter<string>();
+  readonly send = output<{
+    content: string;
+    isSentToBot: boolean;
+  }>();
   private readonly realtime = inject(RealtimeGatewayService);
   private readonly chatService = inject(ChatService);
 
@@ -27,6 +23,8 @@ export class MessageInputComponent {
 
   draft = signal('');
   typing = signal(false);
+  isSentToBot = signal(false);
+  isToggling = signal(false);
 
   private typingTimeout!: number;
 
@@ -34,8 +32,19 @@ export class MessageInputComponent {
     e.preventDefault();
     const text = this.draft().trim();
     if (!text) return;
-    this.send.emit(text);
+    this.send.emit({ content: text, isSentToBot: this.isSentToBot() });
     this.draft.set('');
+  }
+
+  async toggleBotMode() {
+    if (this.isToggling()) return; // Prevent rapid clicking
+
+    this.isToggling.set(true);
+    this.isSentToBot.update((value) => !value);
+
+    // Add a small delay for visual feedback
+    await new Promise((resolve) => setTimeout(resolve, 150));
+    this.isToggling.set(false);
   }
 
   onInput() {
