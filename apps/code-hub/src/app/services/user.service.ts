@@ -1,15 +1,23 @@
-import { Injectable, signal } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { User } from '@codehub/shared-models';
+import { RealtimeGatewayService } from './realtime-gateway.service';
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
+  private readonly realtime = inject(RealtimeGatewayService);
   private storageKey = 'codehub.currentUser';
   readonly currentUser = signal<User>(this.loadOrGenerateUser());
+
+  constructor() {
+    // Save the user to database when service initializes
+    this.saveUserToDatabase(this.currentUser());
+  }
 
   updateUser(patch: Partial<User>) {
     this.currentUser.update((u) => {
       const updated = { ...u, ...patch } as User;
       this.persist(updated);
+      this.saveUserToDatabase(updated);
       return updated;
     });
   }
@@ -17,12 +25,18 @@ export class UserService {
   private loadOrGenerateUser(): User {
     try {
       const raw = localStorage.getItem(this.storageKey);
-      if (raw) return JSON.parse(raw) as User;
+      if (raw) {
+        const user = JSON.parse(raw) as User;
+        // Save to database when loading from localStorage
+        this.saveUserToDatabase(user);
+        return user;
+      }
     } catch {
       console.error('Error loading user from localStorage');
     }
     const user = this.generateUser();
     this.persist(user);
+    this.saveUserToDatabase(user);
     return user;
   }
 
@@ -39,5 +53,9 @@ export class UserService {
     const name = `user_${id.slice(0, 5)}`;
     const avatarUrl = `https://api.dicebear.com/9.x/thumbs/svg?seed=${name}`;
     return { id, name, avatarUrl };
+  }
+
+  private saveUserToDatabase(user: User) {
+    this.realtime.createOrUpdateUser(user);
   }
 }

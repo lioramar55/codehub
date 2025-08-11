@@ -10,6 +10,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RealtimeGatewayService } from '../../services/realtime-gateway.service';
 import { AutoRtlDirective } from '../../directives/auto-rtl.directive';
+import { ChatService } from '../../services/chat.service';
 
 @Component({
   selector: 'app-message-input',
@@ -20,6 +21,7 @@ import { AutoRtlDirective } from '../../directives/auto-rtl.directive';
 export class MessageInputComponent {
   @Output() send = new EventEmitter<string>();
   private readonly realtime = inject(RealtimeGatewayService);
+  private readonly chatService = inject(ChatService);
 
   userId = input.required<string>();
 
@@ -38,12 +40,13 @@ export class MessageInputComponent {
 
   onInput() {
     const userId = this.userId();
-    if (!userId) return;
+    const currentRoom = this.chatService.currentRoom();
+    if (!userId || !currentRoom) return;
 
     // Start typing only if not already marked as typing
     if (!this.typing()) {
       this.typing.set(true);
-      this.realtime.typingStart(userId);
+      this.realtime.typingStart(userId, currentRoom.id);
     }
 
     // Reset stop timer
@@ -51,7 +54,7 @@ export class MessageInputComponent {
 
     this.typingTimeout = setTimeout(() => {
       this.typing.set(false);
-      this.realtime.typingStop(userId);
+      this.realtime.typingStop(userId, currentRoom.id);
     }, 2000); // stop if no input for 2s
   }
 }

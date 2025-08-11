@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { io, Socket } from 'socket.io-client';
-import { User, ChatEvent } from '@codehub/shared-models';
+import { User, ChatEvent, Room } from '@codehub/shared-models';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 
@@ -15,12 +15,28 @@ export class RealtimeGatewayService {
     this.socket = io(environment.socketUrl, { transports: ['websocket'] });
   }
 
-  joinRoom(user: Participant) {
-    this.socket?.emit('room:join', { user });
+  // Room management
+  getRooms(): void {
+    this.socket?.emit('rooms:get');
   }
 
-  leaveRoom() {
+  joinRoom(user: Participant, roomId: string): void {
+    this.socket?.emit('room:join', { user, roomId });
+  }
+
+  leaveRoom(): void {
     this.socket?.emit('room:leave');
+  }
+
+  createOrUpdateUser(user: User) {
+    this.socket?.emit('system:user', { user });
+  }
+
+  onRoomsList(): Observable<Room[]> {
+    return new Observable((sub) => {
+      this.socket?.on('rooms:list', (rooms: Room[]) => sub.next(rooms));
+      return () => this.socket?.off('rooms:list');
+    });
   }
 
   onParticipants(): Observable<Participant[]> {
@@ -39,8 +55,9 @@ export class RealtimeGatewayService {
     });
   }
 
-  sendMessage(author: Participant, content: string) {
-    this.socket?.emit('message:send', { author, content });
+  // Message handling
+  sendMessage(author: Participant, content: string, roomId: string): void {
+    this.socket?.emit('message:send', { author, content, roomId });
   }
 
   onMessageNew(): Observable<ChatEvent> {
@@ -50,12 +67,22 @@ export class RealtimeGatewayService {
     });
   }
 
-  typingStart(userId: string) {
-    this.socket?.emit('typing:start', userId);
+  onRoomHistory(): Observable<ChatEvent[]> {
+    return new Observable((sub) => {
+      this.socket?.on('room:history', (history: ChatEvent[]) =>
+        sub.next(history)
+      );
+      return () => this.socket?.off('room:history');
+    });
   }
 
-  typingStop(userId: string) {
-    this.socket?.emit('typing:stop', userId);
+  // Typing indicators
+  typingStart(userId: string, roomId: string): void {
+    this.socket?.emit('typing:start', { userId, roomId });
+  }
+
+  typingStop(userId: string, roomId: string): void {
+    this.socket?.emit('typing:stop', { userId, roomId });
   }
 
   onTypingStart(): Observable<{ userId: string }> {
@@ -69,6 +96,14 @@ export class RealtimeGatewayService {
     return new Observable((sub) => {
       this.socket?.on('typing:stop', (p) => sub.next(p));
       return () => this.socket?.off('typing:stop');
+    });
+  }
+
+  // Error handling
+  onError(): Observable<{ message: string }> {
+    return new Observable((sub) => {
+      this.socket?.on('error', (error) => sub.next(error));
+      return () => this.socket?.off('error');
     });
   }
 }

@@ -8,7 +8,8 @@
     "start-client": "nx serve code-hub",
     "test-client": "nx test code-hub",
     "start-server": "nodemon --watch apps/chat-server/src --exec nx serve chat-server",
-    "test-server": "nx test chat-server"
+    "test-server": "nx test chat-server",
+    "init-db": "node scripts/init-db.js"
   },
   "private": true,
   "dependencies": {
@@ -20,8 +21,11 @@
     "@angular/platform-browser-dynamic": "~20.1.0",
     "@angular/router": "~20.1.0",
     "@google/genai": "^1.13.0",
+    "@types/pg": "^8.15.5",
     "cors": "^2.8.5",
+    "dotenv": "^17.2.1",
     "express": "^4.21.2",
+    "pg": "^8.16.3",
     "rxjs": "~7.8.0",
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1",
