@@ -9,6 +9,7 @@
     type="text"
     [(ngModel)]="draft"
     (input)="onInput()"
+    [appAutoRtl]="draft()"
     name="message"
     id="message-input"
     autocomplete="off"

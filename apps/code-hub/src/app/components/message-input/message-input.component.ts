@@ -9,11 +9,12 @@ import {
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RealtimeGatewayService } from '../../services/realtime-gateway.service';
+import { AutoRtlDirective } from '../../directives/auto-rtl.directive';
 
 @Component({
   selector: 'app-message-input',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, AutoRtlDirective],
   templateUrl: './message-input.component.html',
 })
 export class MessageInputComponent {

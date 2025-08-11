@@ -1,11 +1,12 @@
 import { Component, input } from '@angular/core';
 import { CommonModule, NgOptimizedImage } from '@angular/common';
+import { AutoRtlDirective } from '../../directives/auto-rtl.directive';
 import { Message, SystemMessage } from '@codehub/shared-models';
 
 @Component({
   selector: 'app-message-item',
   standalone: true,
-  imports: [CommonModule, NgOptimizedImage],
+  imports: [CommonModule, NgOptimizedImage, AutoRtlDirective],
   templateUrl: './message-item.component.html',
 })
 export class MessageItemComponent {
