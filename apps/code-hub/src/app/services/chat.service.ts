@@ -138,4 +138,19 @@ export class ChatService {
 
     this.realtime.typingStop(this.userService.currentUser().id, currentRoom.id);
   }
+
+  createRoom(name: string): void {
+    // TODO: Implement room creation through the realtime service
+    // For now, we'll create a mock room
+    const newRoom: Room = {
+      id: `room-${Date.now()}`,
+      name: name.trim(),
+    };
+
+    // Add to available rooms
+    this.availableRooms.set([...this.availableRooms(), newRoom]);
+
+    // Auto-join the new room
+    this.joinRoom(newRoom);
+  }
 }

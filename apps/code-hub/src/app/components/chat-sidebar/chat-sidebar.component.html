@@ -1,0 +1,194 @@
+<div
+  class="w-80 h-screen bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700 flex flex-col overflow-hidden"
+>
+  <!-- Header -->
+  <div
+    class="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
+  >
+    <h1 class="text-lg font-semibold text-slate-900 dark:text-slate-100">
+      Chats
+    </h1>
+    <button
+      class="w-9 h-9 rounded-lg border-none bg-primary-user hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white flex items-center justify-center cursor-pointer transition-all duration-200 hover:scale-105 active:scale-95"
+      (click)="startCreatingRoom()"
+      title="New Chat"
+    >
+      <svg
+        class="w-5 h-5"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M12 4v16m8-8H4"
+        ></path>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Search Bar -->
+  <div class="p-4 border-b border-slate-200 dark:border-slate-700">
+    <div class="relative flex items-center">
+      <svg
+        class="absolute left-3 w-4 h-4 text-slate-400 dark:text-slate-500 z-10"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+        ></path>
+      </svg>
+      <input
+        type="text"
+        placeholder="Search chats..."
+        class="w-full h-10 pl-10 pr-10 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder-slate-500 dark:placeholder-slate-400 transition-all duration-200 focus:outline-none focus:border-primary-user dark:focus:border-blue-400 focus:bg-white dark:focus:bg-slate-700 focus:ring-2 focus:ring-primary-user/20"
+        [ngModel]="filterText()"
+        (ngModelChange)="filterText.set($event)"
+      />
+      <button
+        *ngIf="filterText()"
+        class="absolute right-2 w-6 h-6 border-none bg-transparent text-slate-400 dark:text-slate-500 cursor-pointer flex items-center justify-center rounded transition-all duration-200 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-600 dark:hover:text-slate-300"
+        (click)="clearFilter()"
+        title="Clear search"
+      >
+        <svg
+          class="w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M6 18L18 6M6 6l12 12"
+          ></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Room Creation Form -->
+  <div
+    *ngIf="isCreatingRoom()"
+    class="p-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
+  >
+    <div class="flex items-center justify-between mb-3">
+      <h3 class="text-base font-semibold text-slate-900 dark:text-slate-100">
+        New Chat
+      </h3>
+      <button
+        class="w-7 h-7 border-none bg-transparent text-slate-500 dark:text-slate-400 cursor-pointer flex items-center justify-center rounded transition-all duration-200 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-700 dark:hover:text-slate-200"
+        (click)="cancelCreatingRoom()"
+        title="Cancel"
+      >
+        <svg
+          class="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M6 18L18 6M6 6l12 12"
+          ></path>
+        </svg>
+      </button>
+    </div>
+    <div>
+      <input
+        type="text"
+        placeholder="Enter chat name..."
+        class="w-full h-10 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md text-sm bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-500 dark:placeholder-slate-400 mb-3 transition-all duration-200 focus:outline-none focus:border-primary-user dark:focus:border-blue-400 focus:ring-2 focus:ring-primary-user/20"
+        [ngModel]="newRoomName()"
+        (ngModelChange)="newRoomName.set($event)"
+        (keyup.enter)="createRoom()"
+      />
+      <div class="flex gap-2 justify-end">
+        <button
+          class="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-300 text-sm font-medium cursor-pointer transition-all duration-200 hover:bg-slate-50 dark:hover:bg-slate-600 hover:border-slate-400 dark:hover:border-slate-500"
+          (click)="cancelCreatingRoom()"
+        >
+          Cancel
+        </button>
+        <button
+          class="px-4 py-2 border-none rounded-md bg-primary-user hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white text-sm font-medium cursor-pointer transition-all duration-200 disabled:bg-slate-400 dark:disabled:bg-slate-600 disabled:cursor-not-allowed"
+          [disabled]="!newRoomName().trim()"
+          (click)="createRoom()"
+        >
+          Create
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rooms List -->
+  <div class="flex-1 overflow-y-auto py-2">
+    <div
+      *ngFor="let room of filteredRooms()"
+      class="flex items-center px-5 py-3 cursor-pointer transition-all duration-200 border-l-3 border-transparent hover:bg-slate-50 dark:hover:bg-slate-800"
+      [class.bg-blue-50]="isRoomActive(room)"
+      [class.dark:bg-blue-900]="isRoomActive(room)"
+      [class.border-primary-user]="isRoomActive(room)"
+      (click)="selectRoom(room)"
+      tabindex="0"
+      (keyup.enter)="selectRoom(room)"
+    >
+      <div class="mr-3 flex-shrink-0">
+        <div
+          class="w-10 h-10 rounded-full bg-gradient-to-br from-primary-user to-purple-600 text-white flex items-center justify-center font-semibold text-base"
+        >
+          {{ room.name.charAt(0).toUpperCase() }}
+        </div>
+      </div>
+      <div class="flex-1 min-w-0">
+        <div
+          class="text-sm font-medium text-slate-900 dark:text-slate-100 mb-1 truncate"
+        >
+          {{ room.name }}
+        </div>
+        <div class="text-xs text-slate-500 dark:text-slate-400">Active</div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div
+      *ngIf="filteredRooms().length === 0"
+      class="flex flex-col items-center justify-center py-10 px-5 text-center text-slate-400 dark:text-slate-500"
+    >
+      <div class="mb-4 opacity-50">
+        <svg
+          class="w-12 h-12"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+          ></path>
+        </svg>
+      </div>
+      <p class="text-base font-medium text-slate-600 dark:text-slate-300 mb-2">
+        {{ filterText() ? 'No chats found' : 'No chats available' }}
+      </p>
+      <p
+        *ngIf="!filterText()"
+        class="text-sm text-slate-500 dark:text-slate-400"
+      >
+        Start by creating a new chat
+      </p>
+    </div>
+  </div>
+</div>

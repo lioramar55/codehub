@@ -20,6 +20,13 @@ export const appRoutes: Route[] = [
             (m) => m.ChatRoomComponent
           ),
       },
+      {
+        path: ':roomId',
+        loadComponent: () =>
+          import('./components/chat-room/chat-room.component').then(
+            (m) => m.ChatRoomComponent
+          ),
+      },
     ],
   },
   {

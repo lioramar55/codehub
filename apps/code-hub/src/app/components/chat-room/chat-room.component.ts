@@ -7,13 +7,16 @@ import {
   linkedSignal,
   signal,
   viewChild,
+  OnInit,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ChatService } from '../../services/chat.service';
 import { UserService } from '../../services/user.service';
 import { ThemeService } from '../../services/theme.service';
 import { MessageListComponent } from '../message-list/message-list.component';
 import { MessageInputComponent } from '../message-input/message-input.component';
+import { Room } from '@codehub/shared-models';
 
 @Component({
   selector: 'app-chat-room',
@@ -21,9 +24,11 @@ import { MessageInputComponent } from '../message-input/message-input.component'
   imports: [CommonModule, MessageListComponent, MessageInputComponent],
   templateUrl: './chat-room.component.html',
 })
-export class ChatRoomComponent {
+export class ChatRoomComponent implements OnInit {
   private readonly chat = inject(ChatService);
   private readonly userService = inject(UserService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   readonly theme = inject(ThemeService);
   private readonly nearBottomThresholdPx = 360;
 
@@ -40,6 +45,29 @@ export class ChatRoomComponent {
   readonly currentUser = linkedSignal(this.userService.currentUser);
   readonly messages = linkedSignal(this.chat.messages);
   readonly typingNames = linkedSignal(this.chat.typingNames);
+  readonly currentRoom = linkedSignal(this.chat.currentRoom);
+
+  ngOnInit() {
+    // Subscribe to route params to handle room navigation
+    this.route.params.subscribe((params) => {
+      const roomId = params['roomId'];
+      if (roomId) {
+        this.joinRoomById(roomId);
+      }
+    });
+  }
+
+  private joinRoomById(roomId: string) {
+    const rooms = this.chat.availableRooms();
+    const room = rooms.find((r) => r.id === roomId);
+
+    if (room) {
+      this.chat.joinRoom(room);
+    } else {
+      // Room not found, redirect to default chat
+      this.router.navigate(['/chat']);
+    }
+  }
 
   onSendText(text: string) {
     // Always scroll when I am the sender

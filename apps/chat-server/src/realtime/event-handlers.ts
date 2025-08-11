@@ -42,13 +42,14 @@ export class EventHandlers {
     await this.roomManager.sendRoomHistory(socket, roomId);
 
     // Create and broadcast join message
-    const joinMessage = this.messageManager.createSystemMessage(
-      user,
-      'join',
-      roomId
-    );
-    await this.messageManager.saveMessage(joinMessage);
-    this.messageManager.broadcastMessage(joinMessage);
+    // TODO: only display when user joins a chat/room
+    // const joinMessage = this.messageManager.createSystemMessage(
+    //   user,
+    //   'join',
+    //   roomId
+    // );
+    // await this.messageManager.saveMessage(joinMessage);
+    // this.messageManager.broadcastMessage(joinMessage);
   }
 
   async handleRoomLeave(
@@ -61,14 +62,14 @@ export class EventHandlers {
     // Remove participant
     this.roomManager.removeParticipant(user.id, roomId);
 
-    // Create and broadcast leave message
-    const leaveMessage = this.messageManager.createSystemMessage(
-      user,
-      'leave',
-      roomId
-    );
-    await this.messageManager.saveMessage(leaveMessage);
-    this.messageManager.broadcastMessage(leaveMessage);
+    // // Create and broadcast leave message
+    // const leaveMessage = this.messageManager.createSystemMessage(
+    //   user,
+    //   'leave',
+    //   roomId
+    // );
+    // await this.messageManager.saveMessage(leaveMessage);
+    // this.messageManager.broadcastMessage(leaveMessage);
 
     // Leave the room
     socket.leave(roomId);
@@ -85,13 +86,14 @@ export class EventHandlers {
     this.roomManager.removeParticipant(user.id, roomId);
 
     // Create and broadcast disconnect message
-    const disconnectMessage = this.messageManager.createSystemMessage(
-      user,
-      'leave',
-      roomId
-    );
-    await this.messageManager.saveMessage(disconnectMessage);
-    this.messageManager.broadcastMessage(disconnectMessage);
+    // TODO: only display when user exits a chat/room
+    // const disconnectMessage = this.messageManager.createSystemMessage(
+    //   user,
+    //   'leave',
+    //   roomId
+    // );
+    //  await this.messageManager.saveMessage(disconnectMessage);
+    //   this.messageManager.broadcastMessage(disconnectMessage);
   }
 
   async handleMessageSend(

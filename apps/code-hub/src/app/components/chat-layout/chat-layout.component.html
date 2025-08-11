@@ -1,5 +1,10 @@
-<div class="h-screen w-screen bg-bg-chat text-gray-900">
-  <section class="min-w-0">
+<div
+  class="flex h-screen w-screen bg-bg-chat dark:bg-slate-900 overflow-hidden"
+>
+  <app-chat-sidebar class="flex-shrink-0 z-10"></app-chat-sidebar>
+  <main
+    class="flex-1 min-w-0 bg-white dark:bg-slate-800 border-l border-slate-200 dark:border-slate-700 overflow-hidden"
+  >
     <router-outlet />
-  </section>
+  </main>
 </div>

@@ -11,11 +11,11 @@
         class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-tr from-indigo-500 via-sky-500 to-emerald-400 text-white text-xs font-bold shadow-sm"
         aria-hidden="true"
       >
-        CH
+        {{ currentRoom()?.name?.charAt(0)?.toUpperCase() || 'C' }}
       </span>
-      <span class="font-semibold text-slate-900 dark:text-slate-100"
-        >CodeHub</span
-      >
+      <span class="font-semibold text-slate-900 dark:text-slate-100">{{
+        currentRoom()?.name || 'CodeHub'
+      }}</span>
     </div>
 
     <!-- Right cluster -->
