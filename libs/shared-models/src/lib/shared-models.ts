@@ -11,8 +11,16 @@ export interface User {
 
 export interface Message {
   id: string;
-  roomId?: string;
+  roomId: string;
   author: User;
   content: string;
-  createdAt: Date;
+  createdAt: string;
+}
+
+export interface SystemMessage {
+  id: string;
+  roomId: string;
+  kind: 'join' | 'leave' | 'info';
+  user: Pick<User, 'id' | 'name'>;
+  createdAt: string;
 }
