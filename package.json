@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "build": "nx build chat-server:build-all",
+    "build": "nx run chat-server:build-all",
     "start": "node dist/apps/chat-server/main.js",
     "start-client": "nx serve code-hub",
     "test-client": "nx test code-hub",
