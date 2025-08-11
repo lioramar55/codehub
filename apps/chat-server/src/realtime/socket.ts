@@ -1,8 +1,9 @@
 import { Server } from 'socket.io';
 import { Message, User } from '@codehub/shared-models';
+import { BotService } from '../servics/bot';
 
 const GENERAL_ROOM_ID = 'general';
-
+const NG_GURU = { id: 'ng-guro', name: 'Ng Guro', isBot: true };
 export function setupSocket(io: Server) {
   let participants: User[] = [];
 
@@ -47,16 +48,38 @@ export function setupSocket(io: Server) {
       });
     });
 
-    socket.on('message:send', (payload: { author: User; content: string }) => {
-      const message: Message = {
-        id: crypto.randomUUID(),
-        author: payload.author,
-        content: payload.content,
-        createdAt: new Date().toISOString(),
-      };
+    socket.on(
+      'message:send',
+      async (payload: { author: User; content: string }) => {
+        const message: Message = {
+          id: crypto.randomUUID(),
+          author: payload.author,
+          content: payload.content,
+          createdAt: new Date().toISOString(),
+        };
 
-      io.to(GENERAL_ROOM_ID).emit('message:new', message);
-    });
+        io.to(GENERAL_ROOM_ID).emit('message:new', message);
+
+        // Bot check
+        if (BotService.isProgrammingQuestion(payload.content)) {
+          try {
+            console.log('inside');
+            const botReply = await BotService.askBot(payload.content);
+            console.log(botReply);
+            const botMessage: Message = {
+              id: crypto.randomUUID(),
+              author: NG_GURU,
+              content: botReply,
+              createdAt: new Date().toISOString(),
+            };
+
+            io.to(GENERAL_ROOM_ID).emit('message:new', botMessage);
+          } catch (err) {
+            console.error('Bot error:', err);
+          }
+        }
+      }
+    );
 
     socket.on('typing:start', (userId: string) => {
       socket.to(GENERAL_ROOM_ID).emit('typing:start', { userId });
