@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { io, Socket } from 'socket.io-client';
 import { User, Message } from '@codehub/shared-models';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 type Participant = Pick<User, 'id' | 'name'>;
 
@@ -11,7 +12,7 @@ export class RealtimeGatewayService {
 
   connect() {
     if (this.socket) return;
-    this.socket = io('http://localhost:3000', { transports: ['websocket'] });
+    this.socket = io(environment.socketUrl, { transports: ['websocket'] });
   }
 
   joinRoom(user: Participant) {

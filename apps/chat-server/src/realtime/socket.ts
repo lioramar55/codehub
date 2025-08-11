@@ -1,6 +1,6 @@
 import { Server } from 'socket.io';
 import { Message, User } from '@codehub/shared-models';
-import { BotService } from '../servics/bot';
+import { BotService } from '../services/bot';
 
 const GENERAL_ROOM_ID = 'general';
 const NG_GURU = { id: 'ng-guro', name: 'Ng Guro', isBot: true };

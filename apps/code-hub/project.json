@@ -10,7 +10,7 @@
       "executor": "@angular/build:application",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/apps/code-hub",
+        "outputPath": "dist/apps/chat-server/public",
         "browser": "apps/code-hub/src/main.ts",
         "polyfills": ["zone.js"],
         "tsConfig": "apps/code-hub/tsconfig.app.json",
@@ -18,6 +18,12 @@
           {
             "glob": "**/*",
             "input": "apps/code-hub/public"
+          }
+        ],
+        "fileReplacements": [
+          {
+            "replace": "apps/code-hub/src/environments/environment.ts",
+            "with": "apps/code-hub/src/environments/environment.prod.ts"
           }
         ],
         "styles": ["apps/code-hub/src/styles.css"]

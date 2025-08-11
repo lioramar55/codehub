@@ -3,10 +3,10 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "build-client": "nx build code-hub",
+    "build": "nx build chat-server:build-all",
+    "start": "node dist/apps/chat-server/main.js",
     "start-client": "nx serve code-hub",
     "test-client": "nx test code-hub",
-    "build-server": "nx build chat-server",
     "start-server": "nodemon --watch apps/chat-server/src --exec nx serve chat-server",
     "test-server": "nx test chat-server"
   },

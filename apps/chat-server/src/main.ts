@@ -3,6 +3,7 @@ import cors from 'cors';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
 import { setupSocket } from './realtime/socket';
+import path from 'path';
 
 const host = process.env.HOST ?? 'localhost';
 const port = process.env.PORT ? Number(process.env.PORT) : 3000;
@@ -10,6 +11,17 @@ const port = process.env.PORT ? Number(process.env.PORT) : 3000;
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+const staticDir = path.resolve(
+  process.cwd(),
+  'dist/apps/chat-server/public/browser'
+);
+
+app.use(express.static(staticDir, { index: false }));
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(staticDir, 'index.html'));
+});
 
 const httpServer = createServer(app);
 const io = new Server(httpServer, { cors: { origin: '*' } });
