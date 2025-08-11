@@ -1,40 +1,27 @@
-import { Component, inject, signal } from '@angular/core';
-import { CommonModule, NgOptimizedImage } from '@angular/common';
+import { Component, inject, linkedSignal } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { ChatService } from '../../services/chat.service';
 import { UserService } from '../../services/user.service';
-import { ActivatedRoute } from '@angular/router';
 import { MessageListComponent } from '../message-list/message-list.component';
 import { MessageInputComponent } from '../message-input/message-input.component';
 
 @Component({
   selector: 'app-chat-room',
   standalone: true,
-  imports: [
-    CommonModule,
-    NgOptimizedImage,
-    MessageListComponent,
-    MessageInputComponent,
-  ],
+  imports: [CommonModule, MessageListComponent, MessageInputComponent],
   templateUrl: './chat-room.component.html',
 })
 export class ChatRoomComponent {
-  private readonly route = inject(ActivatedRoute);
   private readonly chat = inject(ChatService);
   private readonly userService = inject(UserService);
 
-  readonly roomId = signal<string>('general');
-  readonly messages = this.chat.messages;
-
-  constructor() {
-    this.route.paramMap.subscribe((pm) => {
-      const id = pm.get('roomId') ?? 'general';
-      this.roomId.set(id);
-      this.chat.setActiveRoom(id);
-    });
-  }
+  readonly participants = linkedSignal(this.chat.participants);
+  readonly currentUser = linkedSignal(this.userService.currentUser);
+  readonly timeline = linkedSignal(this.chat.timeline);
+  readonly typingNames = linkedSignal(this.chat.typingNames);
 
   onSendText(text: string) {
-    this.chat.sendMessage(this.userService.currentUser(), text);
+    this.chat.sendMessage(text);
   }
 
   defaultAvatar(seed: string) {

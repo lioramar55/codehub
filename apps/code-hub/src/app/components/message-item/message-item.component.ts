@@ -1,6 +1,6 @@
 import { Component, input } from '@angular/core';
 import { CommonModule, NgOptimizedImage } from '@angular/common';
-import { Message } from '@codehub/shared-models';
+import { Message, SystemMessage } from '@codehub/shared-models';
 
 @Component({
   selector: 'app-message-item',
@@ -9,7 +9,9 @@ import { Message } from '@codehub/shared-models';
   templateUrl: './message-item.component.html',
 })
 export class MessageItemComponent {
-  message = input.required<Message>();
+  message = input<Message | null>(null);
+  system = input<SystemMessage | null>(null);
+  currentUserId = input.required<string>();
 
   defaultAvatar(seed: string) {
     return `https://api.dicebear.com/9.x/thumbs/svg?seed=${encodeURIComponent(

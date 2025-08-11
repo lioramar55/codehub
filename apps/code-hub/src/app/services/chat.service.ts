@@ -1,137 +1,108 @@
-import { Injectable, signal, computed } from '@angular/core';
-import { Message, User } from '@codehub/shared-models';
+import { Injectable, signal, computed, inject } from '@angular/core';
+import { Message, SystemMessage } from '@codehub/shared-models';
+import { RealtimeGatewayService } from './realtime-gateway.service';
+import { UserService } from './user.service';
 
-export interface ChatSummary {
+export interface ParticipantSummary {
   id: string;
   name: string;
-  lastMessage?: Message;
-  unreadCount?: number;
 }
+
+export type ChatEntry =
+  | { type: 'system'; createdAt: string; system: SystemMessage }
+  | { type: 'message'; createdAt: string; message: Message };
 
 @Injectable({ providedIn: 'root' })
 export class ChatService {
-  private readonly now = () => new Date();
-
-  // Mock rooms
-  private readonly roomsSignal = signal<ChatSummary[]>([
-    { id: 'general', name: 'General' },
-    { id: 'angular', name: 'Angular' },
-    { id: 'random', name: 'Random' },
-  ]);
-
-  // Active room id
-  readonly activeRoomId = signal<string>('general');
+  private readonly realtime = inject(RealtimeGatewayService);
 
   // Messages per room (mock store)
-  private readonly roomIdToMessages = signal<Record<string, Message[]>>({
-    general: [],
-    angular: [],
-    random: [],
+  private readonly typingUserIds = signal<Set<string>>(new Set());
+  private readonly typingTimeouts = new Map<string, number>();
+
+  readonly messages = signal<Message[]>([]);
+  readonly systemMessages = signal<SystemMessage[]>([]);
+
+  readonly participants = signal<ParticipantSummary[]>([]);
+  readonly typingNames = computed<string[]>(() => {
+    const ids = this.typingUserIds();
+    const list = this.participants();
+    return list.filter((p) => ids.has(p.id)).map((p) => p.name);
   });
 
-  readonly rooms = computed(() => this.roomsSignal());
-  readonly messages = computed<Message[]>(() => {
-    const all = this.roomIdToMessages();
-    return all[this.activeRoomId()] ?? [];
-  });
+  readonly timeline = computed<ChatEntry[]>(() => {
+    const sys = this.systemMessages().map((s) => ({
+      type: 'system' as const,
+      createdAt: s.createdAt,
+      system: s,
+    }));
 
-  // Simple bot user
-  readonly bot: User = {
-    id: 'bot-angular-guru',
-    name: 'Ng Wizard',
-    isBot: true,
-    avatarUrl: `https://api.dicebear.com/9.x/bottts-neutral/svg?seed=angular`,
-  } as User;
+    const msgs = this.messages().map((m) => ({
+      type: 'message' as const,
+      createdAt: m.createdAt,
+      message: m,
+    }));
+
+    return [...sys, ...msgs].sort((a, b) =>
+      a.createdAt.localeCompare(b.createdAt)
+    );
+  });
 
   constructor() {
-    // Seed with a welcome message
-    const welcome: Message = {
-      id: crypto.randomUUID(),
-      roomId: 'general',
-      author: this.bot,
-      content: 'Welcome to Code Hub! Ask me anything about Angular.',
-      createdAt: this.now(),
-    };
-    const map = { ...this.roomIdToMessages() };
-    map['general'] = [welcome];
-    this.roomIdToMessages.set(map);
-  }
+    this.realtime.connect();
 
-  setActiveRoom(roomId: string) {
-    this.activeRoomId.set(roomId);
-  }
+    this.realtime.joinRoom(this.userService.currentUser());
 
-  sendMessage(author: User, content: string) {
-    const msg: Message = {
-      id: crypto.randomUUID(),
-      roomId: this.activeRoomId(),
-      author,
-      content,
-      createdAt: this.now(),
-    };
-    const map = { ...this.roomIdToMessages() };
-    const list = map[this.activeRoomId()] ?? [];
-    map[this.activeRoomId()] = [...list, msg];
-    this.roomIdToMessages.set(map);
+    this.realtime.onMessageNew().subscribe((m) => {
+      this.messages.set([...this.messages(), m]);
+    });
 
-    // Trigger bot if Angular mentioned
-    if (/\b(angular|ng|rxjs|zone\.js|change detection)\b/i.test(content)) {
-      this.enqueueBotReply(content);
-    }
-  }
+    this.realtime.onParticipants().subscribe((list) => {
+      this.participants.set(list);
+    });
 
-  private enqueueBotReply(userText: string) {
-    const thinking: Message = {
-      id: crypto.randomUUID(),
-      roomId: this.activeRoomId(),
-      author: this.bot,
-      content: '🤖 Thinking…',
-      createdAt: this.now(),
-    };
-    this.append(thinking);
+    this.realtime.onSystemEvents().subscribe((e) => {
+      if (e.user.id === this.userService.currentUser().id) return;
 
-    setTimeout(() => {
-      const reply: Message = {
+      const systemMessage: SystemMessage = {
         id: crypto.randomUUID(),
-        roomId: this.activeRoomId(),
-        author: this.bot,
-        content: this.generateAngularAnswer(userText),
-        createdAt: this.now(),
+        kind: e.type,
+        user: e.user,
+        createdAt: new Date().toISOString(),
       };
-      this.replace(thinking.id, reply);
-    }, 800);
+
+      this.systemMessages.set([...this.systemMessages(), systemMessage]);
+    });
+
+    this.realtime.onTypingStart().subscribe(({ userId }) => {
+      const set = new Set(this.typingUserIds());
+      set.add(userId);
+      this.typingUserIds.set(set);
+
+      clearTimeout(this.typingTimeouts.get(userId));
+
+      const tid = setTimeout(() => {
+        const s2 = new Set(this.typingUserIds());
+        s2.delete(userId);
+
+        this.typingUserIds.set(s2);
+      }, 3000);
+
+      this.typingTimeouts.set(userId, tid);
+    });
+
+    this.realtime.onTypingStop().subscribe(({ userId }) => {
+      const set = new Set(this.typingUserIds());
+      set.delete(userId);
+
+      this.typingUserIds.set(set);
+      clearTimeout(this.typingTimeouts.get(userId));
+    });
   }
 
-  private append(message: Message) {
-    const map = { ...this.roomIdToMessages() };
-    const list = map[this.activeRoomId()] ?? [];
-    map[this.activeRoomId()] = [...list, message];
-    this.roomIdToMessages.set(map);
-  }
+  private userService = inject(UserService);
 
-  private replace(messageId: string, replacement: Message) {
-    const map = { ...this.roomIdToMessages() };
-    const roomId = this.activeRoomId();
-    map[roomId] = (map[roomId] ?? []).map((m) =>
-      m.id === messageId ? replacement : m
-    );
-    this.roomIdToMessages.set(map);
-  }
-
-  private generateAngularAnswer(q: string): string {
-    const lower = q.toLowerCase();
-    if (lower.includes('change detection')) {
-      return 'Angular uses zone-less or zone.js-driven change detection. Prefer signals and OnPush-style patterns for efficient rendering. Use computed() and effect() for derived state and side-effects.';
-    }
-    if (lower.includes('rxjs')) {
-      return 'RxJS powers async streams. Use takeUntilDestroyed(), shareReplay({ refCount: true, bufferSize: 1 }), and switchMap for composing HTTP + UI. Prefer signals interop when possible.';
-    }
-    if (lower.includes('routing') || lower.includes('route')) {
-      return 'Use provideRouter() with standalone components, lazy-load via loadComponent, and define feature routes close to features. Keep resolvers lean; prefer guards for auth checks.';
-    }
-    if (lower.includes('forms')) {
-      return 'Angular forms: template-driven for simple cases, reactive forms for complex state. With v17+, consider typed forms and control flow template syntax for clarity.';
-    }
-    return "Pro tip: Embrace Angular's standalone components and signals. Keep components presentational; push side-effects to services. Use Nx to enforce boundaries.";
+  sendMessage(content: string) {
+    this.realtime.sendMessage(this.userService.currentUser(), content);
   }
 }

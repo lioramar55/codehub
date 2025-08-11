@@ -13,9 +13,8 @@ export const appRoutes: Route[] = [
         (m) => m.ChatLayoutComponent
       ),
     children: [
-      { path: '', redirectTo: 'general', pathMatch: 'full' },
       {
-        path: ':roomId',
+        path: '',
         loadComponent: () =>
           import('./components/chat-room/chat-room.component').then(
             (m) => m.ChatRoomComponent

@@ -1,5 +1,11 @@
-<div class="space-y-4">
-  @for (m of messages(); track m.id) {
-  <app-message-item [message]="m" />
-  }
+<div class="space-y-3 flex flex-col">
+  @for (entry of timeline(); track entry.createdAt) { @if (entry.type ===
+  'system') {
+  <app-message-item [system]="entry.system" [currentUserId]="currentUserId()" />
+  } @else {
+  <app-message-item
+    [message]="entry.message"
+    [currentUserId]="currentUserId()"
+  />
+  } }
 </div>

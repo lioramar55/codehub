@@ -1,26 +1,49 @@
-<div class="flex gap-3">
+@let systemMessage = system(); @let chatMessage = message(); @if (systemMessage)
+{
+<div class="text-center text-xs text-gray-500">
+  @if (systemMessage.kind === 'join') { {{ systemMessage.user.name }} joined the
+  chat } @if (systemMessage.kind === 'leave') {
+  {{ systemMessage.user.name }} left the chat }
+</div>
+} @else if (chatMessage) { @let isSelf = !chatMessage.author.isBot &&
+chatMessage.author.id === currentUserId();
+
+<div class="flex items-end gap-3" [class.flex-row-reverse]="isSelf">
+  <!--  Avatar -->
   <img
-    [ngSrc]="message().author.avatarUrl || defaultAvatar(message().author.name)"
+    [ngSrc]="
+      chatMessage.author.avatarUrl || defaultAvatar(chatMessage.author.name)
+    "
     width="40"
     height="40"
     class="h-10 w-10 rounded-full"
     alt="avatar"
   />
-  <div class="min-w-0">
-    <div class="text-sm text-gray-600">
-      <span class="font-medium" [class.text-blue-600]="message().author.isBot">
-        {{ message().author.name }}
-      </span>
-      <span class="ml-2 text-xs">{{
-        message().createdAt | date : 'shortTime'
-      }}</span>
-    </div>
+
+  <!-- Message bubble with timestamp inside -->
+  <div class="max-w-[50%] min-w-0">
     <div
-      class="mt-1 inline-block rounded-2xl px-4 py-2 text-sm"
-      [class.bg-white]="!message().author.isBot"
-      [class.bg-primary-bot]="message().author.isBot"
+      class="flex flex-col rounded-2xl px-4 py-2 text-sm shadow-sm whitespace-pre-wrap break-words w-full"
+      [class.bg-white]="!isSelf && !chatMessage.author.isBot"
+      [class.bg-blue-600]="isSelf"
+      [class.text-white]="isSelf"
+      [class.bg-primary-bot]="chatMessage.author.isBot"
     >
-      {{ message().content }}
+      @if (!isSelf) {
+      <!-- Author name -->
+      <div class="text-xs text-gray-500 font-bold" [class.self-start]="isSelf">
+        {{ chatMessage.author.name }}
+      </div>
+      }
+      <div>{{ chatMessage.content }}</div>
+      <div
+        class="mt-1 text-[10px] opacity-70"
+        [class.self-start]="isSelf"
+        [class.self-end]="!isSelf"
+      >
+        {{ chatMessage.createdAt | date : 'shortTime' }}
+      </div>
     </div>
   </div>
 </div>
+}

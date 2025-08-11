@@ -14,8 +14,8 @@ export class RealtimeGatewayService {
     this.socket = io('http://localhost:3000', { transports: ['websocket'] });
   }
 
-  joinRoom(roomId: string, user: Participant) {
-    this.socket?.emit('room:join', { roomId, user });
+  joinRoom(user: Participant) {
+    this.socket?.emit('room:join', { user });
   }
 
   leaveRoom() {
@@ -38,8 +38,8 @@ export class RealtimeGatewayService {
     });
   }
 
-  sendMessage(roomId: string, author: Participant, content: string) {
-    this.socket?.emit('message:send', { roomId, author, content });
+  sendMessage(author: Participant, content: string) {
+    this.socket?.emit('message:send', { author, content });
   }
 
   onMessageNew(): Observable<Message> {
@@ -49,22 +49,22 @@ export class RealtimeGatewayService {
     });
   }
 
-  typingStart(roomId: string, userId: string) {
-    this.socket?.emit('typing:start', roomId, userId);
+  typingStart(userId: string) {
+    this.socket?.emit('typing:start', userId);
   }
 
-  typingStop(roomId: string, userId: string) {
-    this.socket?.emit('typing:stop', roomId, userId);
+  typingStop(userId: string) {
+    this.socket?.emit('typing:stop', userId);
   }
 
-  onTypingStart(): Observable<{ roomId: string; userId: string }> {
+  onTypingStart(): Observable<{ userId: string }> {
     return new Observable((sub) => {
       this.socket?.on('typing:start', (p) => sub.next(p));
       return () => this.socket?.off('typing:start');
     });
   }
 
-  onTypingStop(): Observable<{ roomId: string; userId: string }> {
+  onTypingStop(): Observable<{ userId: string }> {
     return new Observable((sub) => {
       this.socket?.on('typing:stop', (p) => sub.next(p));
       return () => this.socket?.off('typing:stop');

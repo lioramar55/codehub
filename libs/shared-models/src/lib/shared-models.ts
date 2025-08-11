@@ -11,7 +11,6 @@ export interface User {
 
 export interface Message {
   id: string;
-  roomId: string;
   author: User;
   content: string;
   createdAt: string;
@@ -19,7 +18,6 @@ export interface Message {
 
 export interface SystemMessage {
   id: string;
-  roomId: string;
   kind: 'join' | 'leave' | 'info';
   user: Pick<User, 'id' | 'name'>;
   createdAt: string;
