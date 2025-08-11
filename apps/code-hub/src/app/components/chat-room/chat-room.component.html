@@ -3,41 +3,96 @@
 >
   <!-- Room header -->
   <header
-    class="h-14 flex items-center gap-3 px-4 border-b bg-white dark:bg-slate-800 dark:border-slate-700"
+    class="sticky top-0 z-20 h-14 md:h-16 flex items-center gap-3 sm:gap-4 px-3 sm:px-5 border-b bg-white/80 dark:bg-slate-900/70 dark:border-slate-700 backdrop-blur supports-[backdrop-filter]:bg-white/60"
   >
-    <div class="p-4 flex items-center gap-3 group border-r">
-      <img
-        [src]="currentUser().avatarUrl"
-        alt="avatar"
-        class="h-10 w-10 rounded-full"
-      />
-      <div class="font-semibold">{{ currentUser().name }}</div>
+    <!-- Brand -->
+    <div class="flex items-center gap-2 select-none">
+      <span
+        class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-tr from-indigo-500 via-sky-500 to-emerald-400 text-white text-xs font-bold shadow-sm"
+        aria-hidden="true"
+      >
+        CH
+      </span>
+      <span class="font-semibold text-slate-900 dark:text-slate-100"
+        >CodeHub</span
+      >
     </div>
 
-    <div class="font-semibold text-slate-800 dark:text-slate-100">CodeHub</div>
-    <div
-      class="ml-auto text-sm text-slate-600 dark:text-slate-300 relative group"
-    >
-      <span class="inline-flex items-center gap-2">
-        <span class="h-2 w-2 rounded-full bg-green-500"></span>
-        {{ participants().length }} online
-      </span>
-      <div
-        class="hidden group-hover:block absolute right-0 mt-2 w-56 rounded-md border bg-white dark:bg-slate-800 dark:border-slate-700 p-2 shadow"
+    <!-- Right cluster -->
+    <div class="ml-auto flex items-center gap-2 sm:gap-3">
+      <!-- Participants dropdown (click to open; works on mobile) -->
+      <details class="relative">
+        <summary
+          class="list-none cursor-pointer inline-flex items-center gap-2 rounded-full px-2.5 py-1 text-xs sm:text-sm text-slate-600 dark:text-slate-300 ring-1 ring-slate-200 dark:ring-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800"
+        >
+          <span class="h-2 w-2 rounded-full bg-green-500"></span>
+          {{ participants().length }} online
+          <svg
+            class="ml-1 size-3 text-slate-400"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            aria-hidden="true"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M5.23 7.21a.75.75 0 011.06.02L10 11.178l3.71-3.95a.75.75 0 111.08 1.04l-4.24 4.51a.75.75 0 01-1.08 0L5.21 8.27a.75.75 0 01.02-1.06z"
+              clip-rule="evenodd"
+            />
+          </svg>
+        </summary>
+        <div
+          class="absolute right-0 mt-2 w-56 rounded-lg border bg-white dark:bg-slate-800 dark:border-slate-700 p-2 shadow-lg"
+        >
+          @for (p of participants(); track p.id) {
+          <div
+            class="flex items-center gap-2 px-2 py-1.5 text-sm rounded hover:bg-slate-50 dark:hover:bg-slate-700"
+          >
+            <span class="h-1.5 w-1.5 rounded-full bg-green-500"></span>
+            <span class="truncate">{{ p.name }}</span>
+          </div>
+          }
+        </div>
+      </details>
+
+      <!-- Theme toggle (icon button) -->
+      <button
+        class="inline-flex h-9 w-9 items-center justify-center rounded-full ring-1 ring-slate-200 dark:ring-slate-700 bg-white/70 dark:bg-slate-800/70 hover:bg-slate-100 dark:hover:bg-slate-700 transition"
+        (click)="toggleTheme()"
+        aria-label="Toggle theme"
       >
-        @for (p of participants(); track p.id) {
-        <div class="px-2 py-1 text-sm">{{ p.name }}</div>
-        }
+        <!-- Moon (light mode target) -->
+        <svg
+          class="h-5 w-5 text-slate-700 dark:hidden"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+          aria-hidden="true"
+        >
+          <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+        </svg>
+        <!-- Sun (dark mode target) -->
+        <svg
+          class="hidden h-5 w-5 text-amber-400 dark:block"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+          aria-hidden="true"
+        >
+          <path
+            d="M12 18a6 6 0 100-12 6 6 0 000 12zm0 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zm0-21a1 1 0 011 1v1a1 1 0 11-2 0V1a1 1 0 011-1zm12 11a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM3 12a1 1 0 01-1 1H1a1 1 0 110-2h1a1 1 0 011 1zm16.95 7.536a1 1 0 01-1.415 1.415l-.707-.707a1 1 0 111.415-1.415l.707.707zM5.172 5.172A1 1 0 016.586 3.757l.707.707A1 1 0 116.88 5.88l-.707-.707a1 1 0 01-.001-1.001zM5.172 18.828a1 1 0 011.414-1.414l.707.707a1 1 0 11-1.414 1.414l-.707-.707zm12.02-12.02a1 1 0 011.414-1.414l.707.707a1 1 0 11-1.414 1.414l-.707-.707z"
+          />
+        </svg>
+        <span class="sr-only">Toggle theme</span>
+      </button>
+
+      <!-- Current user -->
+      <div class="flex items-center gap-2 sm:gap-3 pl-1">
+        <img
+          [src]="currentUser().avatarUrl"
+          alt="avatar"
+          class="h-9 w-9 rounded-full ring-2 ring-emerald-400 ring-offset-2 ring-offset-white dark:ring-offset-slate-900"
+        />
+        <div class="hidden sm:block font-medium">{{ currentUser().name }}</div>
       </div>
     </div>
-
-    <button
-      class="ml-4 rounded-full border px-3 py-1 text-xs bg-white dark:bg-slate-700 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-600"
-      (click)="toggleTheme()"
-      aria-label="Toggle theme"
-    >
-      {{ theme.isDark() ? 'Light' : 'Dark' }}
-    </button>
   </header>
 
   <!-- Messages -->
