@@ -5,23 +5,24 @@ import { Server } from 'socket.io';
 import { setupSocket } from './realtime/socket';
 import path from 'path';
 
-const host = process.env.HOST ?? 'localhost';
 const port = process.env.PORT ? Number(process.env.PORT) : 3000;
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-const staticDir = path.resolve(
-  process.cwd(),
-  'dist/apps/chat-server/public/browser'
-);
+if (process.env.environment === 'production') {
+  const staticDir = path.resolve(
+    process.cwd(),
+    'dist/apps/chat-server/public/browser'
+  );
 
-app.use(express.static(staticDir, { index: false }));
+  app.use(express.static(staticDir, { index: false }));
 
-app.get('*', (req, res) => {
-  res.sendFile(path.join(staticDir, 'index.html'));
-});
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(staticDir, 'index.html'));
+  });
+}
 
 const httpServer = createServer(app);
 const io = new Server(httpServer, { cors: { origin: '*' } });
@@ -31,6 +32,6 @@ app.get('/', (req, res) => {
   res.send({ message: 'Hello API' });
 });
 
-httpServer.listen(port, host, () => {
-  console.log(`[ ready ] http://${host}:${port}`);
+httpServer.listen(port, () => {
+  console.log(`[ ready ] on port: ${port}`);
 });

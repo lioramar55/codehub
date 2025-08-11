@@ -63,9 +63,7 @@ export function setupSocket(io: Server) {
         // Bot check
         if (BotService.isProgrammingQuestion(payload.content)) {
           try {
-            console.log('inside');
             const botReply = await BotService.askBot(payload.content);
-            console.log(botReply);
             const botMessage: Message = {
               id: crypto.randomUUID(),
               author: NG_GURU,
