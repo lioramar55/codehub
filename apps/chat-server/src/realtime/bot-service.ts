@@ -33,9 +33,8 @@ export class BotHandler {
     await this.messageManager.saveMessage(userMessage);
     this.messageManager.broadcastMessage(userMessage);
 
-    // Only trigger bot response if explicitly requested
-    console.log('isSentToBot', isSentToBot);
-    if (isSentToBot) {
+    // Trigger bot response if explicitly requested OR if it's a programming question
+    if (isSentToBot || BotServiceClass.isProgrammingQuestion(content)) {
       await this.handleBotResponse(socket, content, roomId);
     }
   }
@@ -46,9 +45,8 @@ export class BotHandler {
     roomId: string
   ): Promise<void> {
     try {
-      const isProgrammingQuestion = await BotServiceClass.isProgrammingQuestion(
-        content
-      );
+      const isProgrammingQuestion =
+        BotServiceClass.isProgrammingQuestion(content);
 
       if (!isProgrammingQuestion) {
         return;
