@@ -1,91 +1,69 @@
 import { Server } from 'socket.io';
+import { Message, User } from '@codehub/shared-models';
 
-type Participant = { id: string; name: string };
-type MessagePayload = {
-  id: string;
-  roomId: string;
-  author: Participant;
-  content: string;
-  createdAt: string;
-};
+const GENERAL_ROOM_ID = 'general';
 
 export function setupSocket(io: Server) {
-  const roomIdToParticipants = new Map<string, Map<string, Participant>>();
-
-  const getParticipants = (roomId: string): Participant[] => {
-    return Array.from(roomIdToParticipants.get(roomId)?.values() ?? []);
-  };
+  let participants: User[] = [];
 
   io.on('connection', (socket) => {
-    let currentRoomId: string | null = null;
-    let self: Participant | null = null;
+    let self: User | null = null;
 
-    socket.on('room:join', (payload: { roomId: string; user: Participant }) => {
-      const { roomId, user } = payload;
-      if (currentRoomId) socket.leave(currentRoomId);
-      currentRoomId = roomId;
+    socket.on('room:join', (payload: { user: User }) => {
+      const { user } = payload;
       self = user;
-      socket.join(roomId);
+      socket.join(GENERAL_ROOM_ID);
 
-      const map =
-        roomIdToParticipants.get(roomId) ?? new Map<string, Participant>();
-      map.set(user.id, user);
-      roomIdToParticipants.set(roomId, map);
+      participants.push(self);
 
-      io.to(roomId).emit('room:participants', getParticipants(roomId));
-      io.to(roomId).emit('system:event', { type: 'join', user });
+      io.to(GENERAL_ROOM_ID).emit('room:participants', participants);
+      io.to(GENERAL_ROOM_ID).emit('system:event', { type: 'join', user });
     });
 
     socket.on('room:leave', () => {
-      if (!currentRoomId || !self) return;
-      const map = roomIdToParticipants.get(currentRoomId);
-      if (map) {
-        map.delete(self.id);
-        if (map.size === 0) roomIdToParticipants.delete(currentRoomId);
-      }
-      io.to(currentRoomId).emit(
-        'room:participants',
-        getParticipants(currentRoomId)
-      );
-      io.to(currentRoomId).emit('system:event', { type: 'leave', user: self });
-      socket.leave(currentRoomId);
-      currentRoomId = null;
+      if (!self) return;
+
+      participants = participants.filter((p) => p.id !== self.id);
+
+      io.to(GENERAL_ROOM_ID).emit('room:participants', participants);
+      io.to(GENERAL_ROOM_ID).emit('system:event', {
+        type: 'leave',
+        user: self,
+      });
+
+      socket.leave(GENERAL_ROOM_ID);
       self = null;
     });
 
     socket.on('disconnect', () => {
-      if (!currentRoomId || !self) return;
-      const map = roomIdToParticipants.get(currentRoomId);
-      if (map) {
-        map.delete(self.id);
-        if (map.size === 0) roomIdToParticipants.delete(currentRoomId);
-      }
-      io.to(currentRoomId).emit(
-        'room:participants',
-        getParticipants(currentRoomId)
-      );
-      io.to(currentRoomId).emit('system:event', { type: 'leave', user: self });
+      if (!self) return;
+
+      participants = participants.filter((p) => p.id !== self.id);
+
+      io.to(GENERAL_ROOM_ID).emit('room:participants', participants);
+      io.to(GENERAL_ROOM_ID).emit('system:event', {
+        type: 'leave',
+        user: self,
+      });
     });
 
-    socket.on(
-      'message:send',
-      (payload: { roomId: string; author: Participant; content: string }) => {
-        const message: MessagePayload = {
-          id: crypto.randomUUID(),
-          roomId: payload.roomId,
-          author: payload.author,
-          content: payload.content,
-          createdAt: new Date().toISOString(),
-        };
-        io.to(payload.roomId).emit('message:new', message);
-      }
-    );
+    socket.on('message:send', (payload: { author: User; content: string }) => {
+      const message: Message = {
+        id: crypto.randomUUID(),
+        author: payload.author,
+        content: payload.content,
+        createdAt: new Date().toISOString(),
+      };
 
-    socket.on('typing:start', (roomId: string, userId: string) => {
-      socket.to(roomId).emit('typing:start', { roomId, userId });
+      io.to(GENERAL_ROOM_ID).emit('message:new', message);
     });
-    socket.on('typing:stop', (roomId: string, userId: string) => {
-      socket.to(roomId).emit('typing:stop', { roomId, userId });
+
+    socket.on('typing:start', (userId: string) => {
+      socket.to(GENERAL_ROOM_ID).emit('typing:start', { userId });
+    });
+
+    socket.on('typing:stop', (userId: string) => {
+      socket.to(GENERAL_ROOM_ID).emit('typing:stop', { userId });
     });
   });
 }
