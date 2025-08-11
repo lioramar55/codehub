@@ -11,6 +11,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { ChatService } from '../../services/chat.service';
 import { UserService } from '../../services/user.service';
+import { ThemeService } from '../../services/theme.service';
 import { MessageListComponent } from '../message-list/message-list.component';
 import { MessageInputComponent } from '../message-input/message-input.component';
 
@@ -23,6 +24,7 @@ import { MessageInputComponent } from '../message-input/message-input.component'
 export class ChatRoomComponent {
   private readonly chat = inject(ChatService);
   private readonly userService = inject(UserService);
+  readonly theme = inject(ThemeService);
   private readonly nearBottomThresholdPx = 360;
 
   // Reference to the scrollable container
@@ -95,5 +97,9 @@ export class ChatRoomComponent {
     const el = this.scrollable()?.nativeElement;
     if (!el) return;
     el.scrollTop = el.scrollHeight;
+  }
+
+  toggleTheme() {
+    this.theme.toggle();
   }
 }

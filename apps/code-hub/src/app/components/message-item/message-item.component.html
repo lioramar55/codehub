@@ -1,6 +1,6 @@
 @let systemMessage = system(); @let chatMessage = message(); @if (systemMessage)
 {
-<div class="text-center text-xs text-gray-500">
+<div class="text-center text-xs text-slate-500 dark:text-slate-400">
   @if (systemMessage.kind === 'join') { {{ systemMessage.user.name }} joined the
   chat } @if (systemMessage.kind === 'leave') {
   {{ systemMessage.user.name }} left the chat }
@@ -21,17 +21,21 @@ chatMessage.author.id === currentUserId();
   />
 
   <!-- Message bubble with timestamp inside -->
-  <div class="max-w-[50%] min-w-0">
+  <div class="max-w-[60%] min-w-0">
     <div
       class="flex flex-col rounded-2xl px-4 py-2 text-sm shadow-sm whitespace-pre-wrap break-words w-full"
       [class.bg-white]="!isSelf && !chatMessage.author.isBot"
-      [class.bg-blue-600]="isSelf"
+      [class.bg-primary-user]="isSelf"
       [class.text-white]="isSelf"
       [class.bg-primary-bot]="chatMessage.author.isBot"
+      [class.dark:bg-slate-700]="!isSelf && !chatMessage.author.isBot"
     >
       @if (!isSelf) {
       <!-- Author name -->
-      <div class="text-xs text-gray-500 font-bold" [class.self-start]="isSelf">
+      <div
+        class="text-xs text-slate-500 dark:text-slate-300 font-bold"
+        [class.self-start]="isSelf"
+      >
         {{ chatMessage.author.name }}
       </div>
       }

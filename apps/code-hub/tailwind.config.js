@@ -3,6 +3,7 @@ const { join } = require('path');
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  darkMode: 'class',
   content: [
     join(__dirname, 'src/**/!(*.stories|*.spec).{ts,html}'),
     ...createGlobPatternsForDependencies(__dirname),
@@ -10,9 +11,10 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        'primary-user': '#0088cc',
-        'primary-bot': '#e5e5ea',
-        'bg-chat': '#f5f8fa',
+        // Refined palette
+        'primary-user': '#2563eb', // blue-600
+        'primary-bot': '#e2e8f0', // slate-200
+        'bg-chat': '#f8fafc', // slate-50
       },
     },
   },
