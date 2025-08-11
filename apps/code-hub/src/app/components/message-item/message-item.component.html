@@ -1,28 +1,23 @@
-@let systemMessage = system(); @let chatMessage = message(); @if (systemMessage)
-{
+@let e = event(); @if (e.type === 'system') {
 <div
   class="text-center text-xs text-slate-500 dark:text-slate-400"
   role="status"
   aria-live="polite"
   aria-atomic="true"
 >
-  @if (systemMessage.kind === 'join') { {{ systemMessage.user.name }} joined the
-  chat } @if (systemMessage.kind === 'leave') {
-  {{ systemMessage.user.name }} left the chat }
+  @if (e.kind === 'join') { {{ e.user?.name }} joined the chat } @if (e.kind ===
+  'leave') { {{ e.user?.name }} left the chat }
 </div>
-} @else if (chatMessage) { @let isSelf = !chatMessage.author.isBot &&
-chatMessage.author.id === currentUserId();
+} @else { @let isSelf = !e.user?.isBot && e.user?.id === currentUserId();
 
 <div class="flex items-end gap-3" [class.flex-row-reverse]="isSelf">
   <!--  Avatar -->
   <img
-    [ngSrc]="
-      chatMessage.author.avatarUrl || defaultAvatar(chatMessage.author.name)
-    "
+    [ngSrc]="e.user?.avatarUrl || defaultAvatar(e.user?.name || '')"
     width="40"
     height="40"
     class="h-10 w-10 rounded-full"
-    [attr.alt]="chatMessage.author.name + ' avatar'"
+    [attr.alt]="(e.user?.name || 'User') + ' avatar'"
   />
 
   <!-- Message bubble with timestamp inside -->
@@ -30,30 +25,30 @@ chatMessage.author.id === currentUserId();
     <div
       class="flex flex-col rounded-2xl px-4 py-2 text-sm shadow-sm whitespace-pre-wrap break-words w-full"
       [ngClass]="{
-        'bg-white dark:bg-slate-700': !isSelf && !chatMessage.author.isBot,
+        'bg-white dark:bg-slate-700': !isSelf && !e.user?.isBot,
         'bg-primary-user text-white': isSelf,
         'bg-primary-bot text-slate-900 dark:bg-slate-800 dark:text-slate-100':
-          chatMessage.author.isBot
+          e.user?.isBot
       }"
     >
-      @if (!isSelf) {
+      @if (!isSelf && e.user) {
       <!-- Author name -->
       <div
         class="text-xs text-slate-500 dark:text-slate-300 font-bold cursor-default"
       >
-        {{ chatMessage.author.name }}
+        {{ e.user.name }}
       </div>
       }
-      <div class="ps-2" [appAutoRtl]="chatMessage.content">
-        {{ chatMessage.content }}
+      <div class="ps-2" [appAutoRtl]="e.content">
+        {{ e.content }}
       </div>
       <time
         class="mt-1 text-[10px] opacity-70"
         [class.self-start]="isSelf"
         [class.self-end]="!isSelf"
-        [attr.datetime]="chatMessage.createdAt | date : 'yyyy-MM-ddTHH:mm:ss'"
+        [attr.datetime]="e.createdAt | date : 'yyyy-MM-ddTHH:mm:ss'"
       >
-        {{ chatMessage.createdAt | date : 'shortTime' }}
+        {{ e.createdAt | date : 'shortTime' }}
       </time>
     </div>
   </div>

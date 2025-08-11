@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { io, Socket } from 'socket.io-client';
-import { User, Message } from '@codehub/shared-models';
+import { User, ChatEvent } from '@codehub/shared-models';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 
@@ -43,9 +43,9 @@ export class RealtimeGatewayService {
     this.socket?.emit('message:send', { author, content });
   }
 
-  onMessageNew(): Observable<Message> {
+  onMessageNew(): Observable<ChatEvent> {
     return new Observable((sub) => {
-      this.socket?.on('message:new', (m: Message) => sub.next(m));
+      this.socket?.on('message:new', (m: ChatEvent) => sub.next(m));
       return () => this.socket?.off('message:new');
     });
   }

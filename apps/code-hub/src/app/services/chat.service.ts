@@ -1,5 +1,5 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
-import { Message, SystemMessage } from '@codehub/shared-models';
+import { ChatEvent } from '@codehub/shared-models';
 import { RealtimeGatewayService } from './realtime-gateway.service';
 import { UserService } from './user.service';
 
@@ -7,21 +7,16 @@ export interface ParticipantSummary {
   id: string;
   name: string;
 }
-
-export type ChatEntry =
-  | { type: 'system'; createdAt: string; system: SystemMessage }
-  | { type: 'message'; createdAt: string; message: Message };
-
 @Injectable({ providedIn: 'root' })
 export class ChatService {
   private readonly realtime = inject(RealtimeGatewayService);
+  private userService = inject(UserService);
 
   // Messages per room (mock store)
   private readonly typingUserIds = signal<Set<string>>(new Set());
   private readonly typingTimeouts = new Map<string, number>();
 
-  readonly messages = signal<Message[]>([]);
-  readonly systemMessages = signal<SystemMessage[]>([]);
+  readonly messages = signal<ChatEvent[]>([]);
 
   readonly participants = signal<ParticipantSummary[]>([]);
   readonly typingNames = computed<string[]>(() => {
@@ -30,30 +25,17 @@ export class ChatService {
     return list.filter((p) => ids.has(p.id)).map((p) => p.name);
   });
 
-  readonly timeline = computed<ChatEntry[]>(() => {
-    const sys = this.systemMessages().map((s) => ({
-      type: 'system' as const,
-      createdAt: s.createdAt,
-      system: s,
-    }));
-
-    const msgs = this.messages().map((m) => ({
-      type: 'message' as const,
-      createdAt: m.createdAt,
-      message: m,
-    }));
-
-    return [...sys, ...msgs].sort((a, b) =>
-      a.createdAt.localeCompare(b.createdAt)
-    );
-  });
-
   constructor() {
     this.realtime.connect();
 
     this.realtime.joinRoom(this.userService.currentUser());
 
     this.realtime.onMessageNew().subscribe((m) => {
+      if (
+        m.type === 'system' &&
+        m.user?.id === this.userService.currentUser().id
+      )
+        return;
       this.messages.set([...this.messages(), m]);
     });
 
@@ -61,18 +43,19 @@ export class ChatService {
       this.participants.set(list);
     });
 
-    this.realtime.onSystemEvents().subscribe((e) => {
-      if (e.user.id === this.userService.currentUser().id) return;
+    // this.realtime.onSystemEvents().subscribe((e) => {
+    //   if (e.user.id === this.userService.currentUser().id) return;
 
-      const systemMessage: SystemMessage = {
-        id: crypto.randomUUID(),
-        kind: e.type,
-        user: e.user,
-        createdAt: new Date().toISOString(),
-      };
+    //   const event: ChatEvent = {
+    //     id: crypto.randomUUID(),
+    //     type: 'system',
+    //     kind: e.type,
+    //     user: e.user,
+    //     createdAt: new Date().toISOString(),
+    //   };
 
-      this.systemMessages.set([...this.systemMessages(), systemMessage]);
-    });
+    //   this.systemMessages.set([...this.systemMessages(), event]);
+    // });
 
     this.realtime.onTypingStart().subscribe(({ userId }) => {
       const set = new Set(this.typingUserIds());
@@ -99,8 +82,6 @@ export class ChatService {
       clearTimeout(this.typingTimeouts.get(userId));
     });
   }
-
-  private userService = inject(UserService);
 
   sendMessage(content: string) {
     this.realtime.sendMessage(this.userService.currentUser(), content);

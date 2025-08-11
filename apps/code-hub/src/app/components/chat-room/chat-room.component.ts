@@ -38,7 +38,7 @@ export class ChatRoomComponent {
 
   readonly participants = linkedSignal(this.chat.participants);
   readonly currentUser = linkedSignal(this.userService.currentUser);
-  readonly timeline = linkedSignal(this.chat.timeline);
+  readonly messages = linkedSignal(this.chat.messages);
   readonly typingNames = linkedSignal(this.chat.typingNames);
 
   onSendText(text: string) {
@@ -80,7 +80,7 @@ export class ChatRoomComponent {
     // Auto-scroll when timeline changes if needed
     effect(() => {
       // react to changes in message count/order
-      const length = this.timeline().length;
+      const length = this.messages().length;
       if (length === 0) return;
 
       const shouldScroll =

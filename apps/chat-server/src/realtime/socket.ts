@@ -1,5 +1,5 @@
 import { Server } from 'socket.io';
-import { Message, User } from '@codehub/shared-models';
+import { ChatEvent, User } from '@codehub/shared-models';
 import { BotService } from '../services/bot';
 
 const GENERAL_ROOM_ID = 'general';
@@ -19,7 +19,13 @@ export function setupSocket(io: Server) {
       participants.push(self);
 
       io.to(GENERAL_ROOM_ID).emit('room:participants', participants);
-      io.to(GENERAL_ROOM_ID).emit('system:event', { type: 'join', user });
+      io.to(GENERAL_ROOM_ID).emit('message:new', {
+        type: 'system',
+        kind: 'join',
+        user,
+        roomId: GENERAL_ROOM_ID,
+        createdAt: new Date().toISOString(),
+      } as ChatEvent);
     });
 
     socket.on('room:leave', () => {
@@ -28,10 +34,13 @@ export function setupSocket(io: Server) {
       participants = participants.filter((p) => p.id !== self.id);
 
       io.to(GENERAL_ROOM_ID).emit('room:participants', participants);
-      io.to(GENERAL_ROOM_ID).emit('system:event', {
-        type: 'leave',
+      io.to(GENERAL_ROOM_ID).emit('message:new', {
+        type: 'system',
         user: self,
-      });
+        roomId: GENERAL_ROOM_ID,
+        kind: 'leave',
+        createdAt: new Date().toISOString(),
+      } as ChatEvent);
 
       socket.leave(GENERAL_ROOM_ID);
       self = null;
@@ -43,20 +52,25 @@ export function setupSocket(io: Server) {
       participants = participants.filter((p) => p.id !== self.id);
 
       io.to(GENERAL_ROOM_ID).emit('room:participants', participants);
-      io.to(GENERAL_ROOM_ID).emit('system:event', {
-        type: 'leave',
+      io.to(GENERAL_ROOM_ID).emit('message:new', {
+        type: 'system',
         user: self,
-      });
+        roomId: GENERAL_ROOM_ID,
+        kind: 'leave',
+        createdAt: new Date().toISOString(),
+      } as ChatEvent);
     });
 
     socket.on(
       'message:send',
       async (payload: { author: User; content: string }) => {
-        const message: Message = {
+        const message: ChatEvent = {
           id: crypto.randomUUID(),
-          author: payload.author,
+          user: payload.author,
           content: payload.content,
           createdAt: new Date().toISOString(),
+          roomId: GENERAL_ROOM_ID,
+          type: 'user',
         };
 
         io.to(GENERAL_ROOM_ID).emit('message:new', message);
@@ -74,12 +88,14 @@ export function setupSocket(io: Server) {
             );
 
             if (messageTimestamps.length >= 5) {
-              const botMessage: Message = {
+              const botMessage: ChatEvent = {
                 id: crypto.randomUUID(),
-                author: NG_GURU,
+                user: NG_GURU,
                 content:
                   'NG Guru limit reached. Please wait a minute and try again (limit is 5 messages per minute).',
                 createdAt: new Date().toISOString(),
+                roomId: GENERAL_ROOM_ID,
+                type: 'bot',
               };
 
               socket.emit('message:new', botMessage);
@@ -90,11 +106,13 @@ export function setupSocket(io: Server) {
             messageTimestamps.push(nowMs);
 
             const botReply = await BotService.askBot(payload.content);
-            const botMessage: Message = {
+            const botMessage: ChatEvent = {
               id: crypto.randomUUID(),
-              author: NG_GURU,
+              user: NG_GURU,
               content: botReply,
               createdAt: new Date().toISOString(),
+              roomId: GENERAL_ROOM_ID,
+              type: 'bot',
             };
 
             io.to(GENERAL_ROOM_ID).emit('message:new', botMessage);
@@ -102,12 +120,14 @@ export function setupSocket(io: Server) {
         } catch (err) {
           console.error('Bot error:', err);
 
-          const botMessage: Message = {
+          const botMessage: ChatEvent = {
             id: crypto.randomUUID(),
-            author: NG_GURU,
+            user: NG_GURU,
             content:
               'NG Guru is experiencing difficulties, please try again later.',
             createdAt: new Date().toISOString(),
+            roomId: GENERAL_ROOM_ID,
+            type: 'bot',
           };
 
           socket.emit('message:new', botMessage);

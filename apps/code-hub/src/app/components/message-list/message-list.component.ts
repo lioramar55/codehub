@@ -1,8 +1,7 @@
 import { Component, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Message } from '@codehub/shared-models';
+import { ChatEvent } from '@codehub/shared-models';
 import { MessageItemComponent } from '../message-item/message-item.component';
-import { ChatEntry } from '../../services/chat.service';
 
 @Component({
   selector: 'app-message-list',
@@ -12,7 +11,7 @@ import { ChatEntry } from '../../services/chat.service';
 })
 export class MessageListComponent {
   currentUserId = input.required<string>();
-  timeline = input.required<ChatEntry[]>();
+  messages = input.required<ChatEvent[]>();
 
-  trackById = (_: number, m: Message) => m.id;
+  trackById = (_: number, m: ChatEvent) => m.id;
 }

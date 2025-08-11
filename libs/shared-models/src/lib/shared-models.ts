@@ -2,6 +2,11 @@ export function sharedModels(): string {
   return 'shared-models';
 }
 
+export interface Room {
+  id: string;
+  name: string;
+}
+
 export interface User {
   id: string;
   name: string;
@@ -9,16 +14,12 @@ export interface User {
   isBot?: boolean;
 }
 
-export interface Message {
+export interface ChatEvent {
   id: string;
-  author: User;
-  content: string;
+  type: 'user' | 'bot' | 'system';
+  content?: string; // only for user/bot messages
+  kind?: 'join' | 'leave' | 'info'; // only for system messages
+  user?: User; // only for system messages
   createdAt: string;
-}
-
-export interface SystemMessage {
-  id: string;
-  kind: 'join' | 'leave' | 'info';
-  user: Pick<User, 'id' | 'name'>;
-  createdAt: string;
+  roomId?: string;
 }

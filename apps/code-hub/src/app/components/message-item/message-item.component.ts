@@ -1,7 +1,7 @@
 import { Component, input } from '@angular/core';
 import { CommonModule, NgOptimizedImage } from '@angular/common';
 import { AutoRtlDirective } from '../../directives/auto-rtl.directive';
-import { Message, SystemMessage } from '@codehub/shared-models';
+import { ChatEvent } from '@codehub/shared-models';
 
 @Component({
   selector: 'app-message-item',
@@ -10,8 +10,7 @@ import { Message, SystemMessage } from '@codehub/shared-models';
   templateUrl: './message-item.component.html',
 })
 export class MessageItemComponent {
-  message = input<Message | null>(null);
-  system = input<SystemMessage | null>(null);
+  event = input.required<ChatEvent>();
   currentUserId = input.required<string>();
 
   defaultAvatar(seed: string) {
