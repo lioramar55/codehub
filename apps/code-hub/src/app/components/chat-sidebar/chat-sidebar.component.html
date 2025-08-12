@@ -3,37 +3,47 @@
 >
   <!-- Header -->
   <div
-    class="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
+    class="flex items-center justify-between p-2 lg:p-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
   >
-    <h1 class="text-lg font-semibold text-slate-900 dark:text-slate-100">
-      Chats
-    </h1>
-    <button
-      class="w-9 h-9 rounded-lg border-none bg-primary-user hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white flex items-center justify-center cursor-pointer transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation"
-      (click)="startCreatingRoom()"
-      (keydown.enter)="startCreatingRoom()"
-      (keydown.space)="startCreatingRoom()"
-      title="New Chat"
-      aria-label="Create new chat"
-    >
-      <svg
-        class="w-5 h-5"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
+    <div class="flex items-center gap-1.5 lg:gap-3">
+      <h1
+        class="text-sm lg:text-lg font-semibold text-slate-900 dark:text-slate-100"
       >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M12 4v16m8-8H4"
-        ></path>
-      </svg>
-    </button>
+        Chats
+      </h1>
+    </div>
+    <div class="flex items-center gap-1.5 lg:gap-3">
+      <!-- Connection Status Component (Desktop) -->
+      <div class="hidden lg:block">
+        <app-connection-status />
+      </div>
+      <button
+        class="w-7 h-7 lg:w-9 lg:h-9 rounded-lg border-none bg-primary-user hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white flex items-center justify-center cursor-pointer transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation"
+        (click)="startCreatingRoom()"
+        (keydown.enter)="startCreatingRoom()"
+        (keydown.space)="startCreatingRoom()"
+        title="New Chat"
+        aria-label="Create new chat"
+      >
+        <svg
+          class="w-3.5 h-3.5 lg:w-5 lg:h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 4v16m8-8H4"
+          ></path>
+        </svg>
+      </button>
+    </div>
   </div>
 
   <!-- Search Bar -->
-  <div class="p-4 border-b border-slate-200 dark:border-slate-700">
+  <div class="p-2 lg:p-4 border-b border-slate-200 dark:border-slate-700">
     <div class="relative flex items-center">
       <svg
         class="absolute left-3 w-4 h-4 text-slate-400 dark:text-slate-500 z-10"
@@ -84,7 +94,7 @@
   <!-- Room Creation Form -->
   <div
     *ngIf="isCreatingRoom()"
-    class="p-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
+    class="p-2 lg:p-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
   >
     <div class="flex items-center justify-between mb-3">
       <h3 class="text-base font-semibold text-slate-900 dark:text-slate-100">
@@ -150,7 +160,7 @@
   <div class="flex-1 overflow-y-auto py-2">
     <div
       *ngFor="let room of filteredRooms()"
-      class="flex items-center px-4 py-3 cursor-pointer transition-all duration-200 border-l-3 border-transparent hover:bg-slate-50 dark:hover:bg-slate-800 active:bg-slate-100 dark:active:bg-slate-700 touch-manipulation"
+      class="flex items-center px-2 lg:px-4 py-2 lg:py-3 cursor-pointer transition-all duration-200 border-l-3 border-transparent hover:bg-slate-50 dark:hover:bg-slate-800 active:bg-slate-100 dark:active:bg-slate-700 touch-manipulation"
       [class.bg-blue-50]="isRoomActive(room)"
       [class.dark:bg-blue-900]="isRoomActive(room)"
       [class.border-primary-user]="isRoomActive(room)"
@@ -162,16 +172,16 @@
       [attr.aria-label]="'Select ' + room.name + ' chat'"
       [attr.aria-current]="isRoomActive(room) ? 'page' : null"
     >
-      <div class="mr-3 flex-shrink-0">
+      <div class="mr-1.5 lg:mr-3 flex-shrink-0">
         <div
-          class="w-10 h-10 rounded-full bg-gradient-to-br from-primary-user to-purple-600 text-white flex items-center justify-center font-semibold text-base"
+          class="w-7 h-7 lg:w-10 lg:h-10 rounded-full bg-gradient-to-br from-primary-user to-purple-600 text-white flex items-center justify-center font-semibold text-xs lg:text-base"
         >
           {{ room.name.charAt(0).toUpperCase() }}
         </div>
       </div>
       <div class="flex-1 min-w-0">
         <div
-          class="text-sm font-medium text-slate-900 dark:text-slate-100 mb-1 truncate"
+          class="text-xs lg:text-sm font-medium text-slate-900 dark:text-slate-100 mb-0.5 lg:mb-1 truncate"
         >
           {{ room.name }}
         </div>

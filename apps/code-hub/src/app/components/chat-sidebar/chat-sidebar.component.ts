@@ -11,12 +11,13 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ChatService } from '../../services/chat.service';
 import { ThemeService } from '../../services/theme.service';
+import { ConnectionStatusComponent } from '../connection-status/connection-status.component';
 import { Room } from '@codehub/shared-models';
 
 @Component({
   selector: 'app-chat-sidebar',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ConnectionStatusComponent],
   templateUrl: './chat-sidebar.component.html',
 })
 export class ChatSidebarComponent {

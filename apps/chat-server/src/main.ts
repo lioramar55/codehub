@@ -34,6 +34,16 @@ app.get('/', (req, res) => {
   res.send({ message: 'Hello API' });
 });
 
+// Health check endpoint for Railway
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    connections: io.engine.clientsCount,
+  });
+});
+
 httpServer.listen(port, () => {
   console.log(`[ ready ] on port: ${port}`);
   initializeDatabase().catch((err) => {

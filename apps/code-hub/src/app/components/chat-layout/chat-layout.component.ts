@@ -9,12 +9,17 @@ import {
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ChatSidebarComponent } from '../chat-sidebar/chat-sidebar.component';
-import { ChatService } from '../../services/chat.service';
+import { ConnectionStatusComponent } from '../connection-status/connection-status.component';
 
 @Component({
   selector: 'app-chat-layout',
   standalone: true,
-  imports: [CommonModule, RouterModule, ChatSidebarComponent],
+  imports: [
+    CommonModule,
+    RouterModule,
+    ChatSidebarComponent,
+    ConnectionStatusComponent,
+  ],
   templateUrl: './chat-layout.component.html',
 })
 export class ChatLayoutComponent implements OnInit, OnDestroy {
@@ -85,7 +90,7 @@ export class ChatLayoutComponent implements OnInit, OnDestroy {
 
   // Auto-hide sidebar on mobile when room is selected
   onRoomSelected(): void {
-    if (window.innerWidth < 768) {
+    if (window.innerWidth < 1024) {
       this.closeSidebar();
     }
   }

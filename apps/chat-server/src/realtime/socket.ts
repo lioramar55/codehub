@@ -20,6 +20,11 @@ export function setupSocket(io: Server) {
     let self: User | null = null;
     let currentRoomId: string | null = null;
 
+    // Handle ping for keep-alive
+    socket.on('ping', () => {
+      socket.emit('pong');
+    });
+
     // Get available rooms
     socket.on('rooms:get', async () => {
       await eventHandlers.handleGetRooms(socket);
