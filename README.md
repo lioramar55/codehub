@@ -1,82 +1,102 @@
-# Codehub
+# CodeHub
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+A real-time chat application built with Angular and Node.js in an Nx monorepo.
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is almost ready ✨.
+## Overview
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/getting-started/tutorials/angular-monorepo-tutorial?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+CodeHub is a modern chat application featuring real-time messaging, room management, and AI-powered bot interactions. Built with Angular for the frontend and Express.js for the backend, all managed within an Nx monorepo for optimal development experience.
 
-## Finish your CI setup
+## Monorepo Structure
 
-[Click here to finish setting up your workspace!](https://cloud.nx.app/connect/Y5dX5KtquR)
-
-
-## Run tasks
-
-To run the dev server for your app, use:
-
-```sh
-npx nx serve code-hub
+```
+codehub/
+├── apps/
+│   ├── code-hub/          # Angular client application
+│   │   ├── src/app/       # Angular components and services
+│   │   └── src/environments/ # Environment configurations
+│   └── chat-server/       # Node.js Express server
+│       ├── src/services/  # Backend services (bot, database, etc.)
+│       └── src/realtime/  # Socket.io real-time functionality
+└── libs/
+    └── shared-models/     # Shared TypeScript interfaces and types
 ```
 
-To create a production bundle:
+### Applications
 
-```sh
-npx nx build code-hub
-```
+- **`code-hub`** - Angular frontend with real-time chat interface, room management, and responsive design
+- **`chat-server`** - Express.js backend with Socket.io for real-time communication, PostgreSQL database, and AI bot integration
 
-To see all available targets to run for a project, run:
+### Libraries
 
-```sh
-npx nx show project code-hub
-```
+- **`shared-models`** - Shared TypeScript interfaces and data models used across frontend and backend
 
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
+## Quick Start
 
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+### Prerequisites
 
-## Add new projects
+- Node.js (v18 or higher)
+- npm
+- PostgreSQL database
 
-While you could add new projects to your workspace manually, you might want to leverage [Nx plugins](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) and their [code generation](https://nx.dev/features/generate-code?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) feature.
+### Installation
 
-Use the plugin's generator to create new projects.
+1. **Install dependencies:**
 
-To generate a new application, use:
+   ```bash
+   npm install
+   ```
 
-```sh
-npx nx g @nx/angular:app demo
-```
+2. **Set up environment variables:**
+   Create a `.env` file in the root directory with your database and API configuration:
 
-To generate a new library, use:
+   ```env
+   DATABASE_URL=postgresql://username:password@localhost:5432/codehub
+   GEMINI_API_KEY=your_gemini_api_key_here
+   ```
 
-```sh
-npx nx g @nx/angular:lib mylib
-```
+3. **Start the development servers:**
 
-You can use `npx nx list` to get a list of installed plugins. Then, run `npx nx list <plugin-name>` to learn about more specific capabilities of a particular plugin. Alternatively, [install Nx Console](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) to browse plugins and generators in your IDE.
+   **Option 1: Run both apps simultaneously**
 
-[Learn more about Nx plugins &raquo;](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) | [Browse the plugin registry &raquo;](https://nx.dev/plugin-registry?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+   ```bash
+   npm run client    # Starts Angular dev server
+   npm run server    # Starts Express server with nodemon
+   ```
 
+   **Option 2: Run individually**
 
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+   ```bash
+   # Frontend only
+   nx serve code-hub
 
-## Install Nx Console
+   # Backend only
+   nx serve chat-server
+   ```
 
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
+### Available Scripts
 
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+- `npm run client` - Start Angular development server
+- `npm run server` - Start Express server with auto-reload
+- `npm run build` - Build all applications
+- `npm test` - Run all tests
+- `nx serve code-hub` - Serve Angular app
+- `nx serve chat-server` - Serve Express server
 
-## Useful links
+### Development
 
-Learn more:
+- **Frontend**: http://localhost:4200
+- **Backend**: http://localhost:3000
 
-- [Learn more about this workspace setup](https://nx.dev/getting-started/tutorials/angular-monorepo-tutorial?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+## Technology Stack
 
-And join the Nx community:
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+- **Frontend**: Angular 20, Tailwind CSS, Socket.io Client
+- **Backend**: Node.js, Express, Socket.io, PostgreSQL, Winston logging
+- **Build System**: Nx 21.3.11
+- **Testing**: Jest
+- **Linting**: ESLint
+
+## Learn More
+
+- [Nx Documentation](https://nx.dev)
+- [Angular Documentation](https://angular.io/docs)
+- [Express.js Documentation](https://expressjs.com)
