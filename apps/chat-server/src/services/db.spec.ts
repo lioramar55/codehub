@@ -1,4 +1,5 @@
 import { pool, closePool, initializeDatabase } from './db';
+import { logInfo, logError } from '../utils/logger';
 
 // Mock dependencies
 jest.mock('pg', () => ({
@@ -8,15 +9,11 @@ jest.mock('pg', () => ({
   })),
 }));
 
-// Mock console.log to reduce noise in tests
-const originalConsoleLog = console.log;
-beforeAll(() => {
-  console.log = jest.fn();
-});
-
-afterAll(() => {
-  console.log = originalConsoleLog;
-});
+// Mock the logger
+jest.mock('../utils/logger', () => ({
+  logInfo: jest.fn(),
+  logError: jest.fn(),
+}));
 
 describe('Database Service', () => {
   let mockPool: any;
@@ -46,6 +43,17 @@ describe('Database Service', () => {
       await closePool();
 
       expect(mockPool.end).toHaveBeenCalled();
+    });
+
+    it('should log pool closing messages', async () => {
+      await closePool();
+
+      expect(logInfo).toHaveBeenCalledWith(
+        'Closing database connection pool...'
+      );
+      expect(logInfo).toHaveBeenCalledWith(
+        'Database connection pool closed successfully'
+      );
     });
 
     it('should handle pool close errors gracefully', async () => {
@@ -105,14 +113,13 @@ describe('Database Service', () => {
       expect(mockClient.release).toHaveBeenCalled();
     });
 
-    it('should log success message', async () => {
+    it('should log initialization and success messages', async () => {
       mockClient.query.mockResolvedValue({ rows: [] });
 
       await initializeDatabase();
 
-      expect(console.log).toHaveBeenCalledWith(
-        'Database initialized successfully'
-      );
+      expect(logInfo).toHaveBeenCalledWith('Initializing database...');
+      expect(logInfo).toHaveBeenCalledWith('Database initialized successfully');
     });
 
     it('should handle database connection errors', async () => {
@@ -122,11 +129,12 @@ describe('Database Service', () => {
       await expect(initializeDatabase()).rejects.toThrow('Connection error');
     });
 
-    it('should handle query errors', async () => {
+    it('should handle query errors and log them', async () => {
       const error = new Error('Query error');
       mockClient.query.mockRejectedValue(error);
 
       await expect(initializeDatabase()).rejects.toThrow('Query error');
+      expect(logError).toHaveBeenCalledWith(error, 'Database initialization');
     });
 
     it('should release client even if query fails', async () => {
