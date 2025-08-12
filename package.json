@@ -5,11 +5,10 @@
   "scripts": {
     "build": "nx run chat-server:build-all",
     "start": "node dist/apps/chat-server/main.js",
-    "start-client": "nx serve code-hub",
+    "client": "nx serve code-hub",
+    "server": "nodemon --watch apps/chat-server/src --exec nx serve chat-server",
     "test-client": "nx test code-hub",
-    "start-server": "nodemon --watch apps/chat-server/src --exec nx serve chat-server",
-    "test-server": "nx test chat-server",
-    "init-db": "node scripts/init-db.js"
+    "test-server": "nx test chat-server"
   },
   "private": true,
   "dependencies": {
