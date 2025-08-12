@@ -1,4 +1,4 @@
 export const environment = {
-  production: false,
-  socketUrl: '',
+  production: true,
+  socketUrl: '', // Update this with your actual production domain
 };

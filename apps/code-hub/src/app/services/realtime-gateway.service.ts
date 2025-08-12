@@ -12,7 +12,23 @@ export class RealtimeGatewayService {
 
   connect() {
     if (this.socket) return;
+
+    if (!environment.socketUrl) {
+      console.error(
+        'Socket URL is not configured. Please check your environment configuration.'
+      );
+      return;
+    }
+
     this.socket = io(environment.socketUrl, { transports: ['websocket'] });
+
+    this.socket.on('connect', () => {
+      console.log('Connected to socket server');
+    });
+
+    this.socket.on('connect_error', (error) => {
+      console.error('Socket connection error:', error);
+    });
   }
 
   // Room management

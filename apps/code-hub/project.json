@@ -20,16 +20,17 @@
             "input": "apps/code-hub/public"
           }
         ],
-        "fileReplacements": [
-          {
-            "replace": "apps/code-hub/src/environments/environment.ts",
-            "with": "apps/code-hub/src/environments/environment.prod.ts"
-          }
-        ],
+        "fileReplacements": [],
         "styles": ["apps/code-hub/src/styles.css"]
       },
       "configurations": {
         "production": {
+          "fileReplacements": [
+            {
+              "replace": "apps/code-hub/src/environments/environment.ts",
+              "with": "apps/code-hub/src/environments/environment.prod.ts"
+            }
+          ],
           "budgets": [
             {
               "type": "initial",
@@ -50,7 +51,7 @@
           "sourceMap": true
         }
       },
-      "defaultConfiguration": "production"
+      "defaultConfiguration": "development"
     },
     "serve": {
       "continuous": true,
