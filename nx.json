@@ -19,7 +19,7 @@
   "targetDefaults": {
     "@angular/build:application": {
       "cache": true,
-      "dependsOn": ["^build"],
+      "dependsOn": ["^build", "^test"],
       "inputs": ["production", "^production"]
     },
     "@nx/eslint:lint": {
@@ -35,12 +35,13 @@
       "cache": true,
       "inputs": ["default", "^production", "{workspaceRoot}/jest.preset.js"],
       "options": {
-        "passWithNoTests": true
+        "passWithNoTests": false
       },
       "configurations": {
         "ci": {
           "ci": true,
-          "codeCoverage": true
+          "codeCoverage": true,
+          "passWithNoTests": false
         }
       }
     },
