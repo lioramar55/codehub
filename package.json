@@ -5,13 +5,9 @@
   "scripts": {
     "build": "nx run chat-server:build-all",
     "start": "node dist/apps/chat-server/main.js",
+    "test": "nx run-many --target=test --all",
     "client": "nx serve code-hub",
-    "server": "nodemon --watch apps/chat-server/src --exec nx serve chat-server",
-    "test-client": "nx test code-hub",
-    "test-server": "nx test chat-server",
-    "test:ci": "nx test code-hub --configuration=ci && nx test chat-server --configuration=ci",
-    "lint:ci": "nx lint code-hub && nx lint chat-server",
-    "build:ci": "nx lint code-hub && nx test code-hub --configuration=ci && nx build code-hub --configuration=production"
+    "server": "nodemon --watch apps/chat-server/src --exec nx serve chat-server"
   },
   "private": true,
   "dependencies": {

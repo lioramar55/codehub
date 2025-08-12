@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  socketUrl: '', // Update this with your actual production domain
+  socketUrl: 'https://codehub-production-46c7.up.railway.app',
 };
