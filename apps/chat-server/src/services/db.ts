@@ -1,15 +1,24 @@
 import { Pool } from 'pg';
+import { logInfo, logError } from '../utils/logger';
+import { DatabaseLogger } from './db-logger';
 
-export const pool = new Pool({
+const rawPool = new Pool({
   connectionString: process.env.CONNECTION_STRING,
 });
 
+export const db = new DatabaseLogger(rawPool);
+export const pool = db; // For backward compatibility
+
 export async function closePool() {
+  logInfo('Closing database connection pool...');
   await pool.end();
+  logInfo('Database connection pool closed successfully');
 }
 
 export async function initializeDatabase() {
+  logInfo('Initializing database...');
   const client = await pool.connect();
+
   try {
     // Users table
     await client.query(`
@@ -49,7 +58,10 @@ export async function initializeDatabase() {
       ON messages(room_id, created_at DESC)
     `);
 
-    console.log('Database initialized successfully');
+    logInfo('Database initialized successfully');
+  } catch (error) {
+    logError(error as Error, 'Database initialization');
+    throw error;
   } finally {
     client.release();
   }

@@ -3,13 +3,19 @@ import express from 'express';
 import cors from 'cors';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
+import morgan from 'morgan';
 import { setupSocket } from './realtime/socket';
 import { closePool, initializeDatabase } from './services/db';
+import logger, { stream, logInfo, logError } from './utils/logger';
 import path from 'path';
 
 const port = process.env.PORT ? Number(process.env.PORT) : 3000;
 
 const app = express();
+
+// Add HTTP request logging middleware
+app.use(morgan('combined', { stream }));
+
 app.use(cors());
 app.use(express.json());
 
@@ -31,36 +37,70 @@ const io = new Server(httpServer, { cors: { origin: '*' } });
 setupSocket(io);
 
 app.get('/', (req, res) => {
+  logInfo('API root endpoint accessed', {
+    ip: req.ip,
+    userAgent: req.get('User-Agent'),
+  });
   res.send({ message: 'Hello API' });
 });
 
 // Health check endpoint for Railway
 app.get('/health', (req, res) => {
-  res.status(200).json({
+  const healthData = {
     status: 'ok',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
     connections: io.engine.clientsCount,
+  };
+
+  logInfo('Health check requested', {
+    ip: req.ip,
+    userAgent: req.get('User-Agent'),
+    connections: healthData.connections,
   });
+
+  res.status(200).json(healthData);
 });
 
 httpServer.listen(port, () => {
-  console.log(`[ ready ] on port: ${port}`);
+  logInfo(`Server started successfully`, {
+    port,
+    environment: process.env.NODE_ENV || 'development',
+    nodeVersion: process.version,
+  });
+
   initializeDatabase().catch((err) => {
-    console.error('Database initialization error:', err);
+    logError(err, 'Database initialization');
     process.exit(1);
   });
 });
 
 // Graceful shutdown
 process.on('SIGINT', async () => {
-  console.log('Shutting down server...');
+  logInfo('Received SIGINT signal, shutting down server gracefully...');
   await closePool();
+  logInfo('Server shutdown completed');
   process.exit(0);
 });
 
 process.on('SIGTERM', async () => {
-  console.log('Shutting down server...');
+  logInfo('Received SIGTERM signal, shutting down server gracefully...');
   await closePool();
+  logInfo('Server shutdown completed');
   process.exit(0);
+});
+
+// Handle uncaught exceptions
+process.on('uncaughtException', (error) => {
+  logError(error, 'Uncaught Exception');
+  process.exit(1);
+});
+
+// Handle unhandled promise rejections
+process.on('unhandledRejection', (reason, promise) => {
+  logError(
+    new Error(`Unhandled Rejection at: ${promise}, reason: ${reason}`),
+    'Unhandled Rejection'
+  );
+  process.exit(1);
 });
