@@ -17,11 +17,8 @@
     [ngClass]="sidebarClasses()"
     class="w-80 h-screen bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700 flex flex-col overflow-hidden"
   >
-    <app-chat-sidebar
-      (roomSelected)="onRoomSelected()"
-      class="flex-shrink-0 z-10"
-    >
-    </app-chat-sidebar>
+    <chat-sidebar (roomSelected)="onRoomSelected()" class="flex-shrink-0 z-10">
+    </chat-sidebar>
   </div>
 
   <!-- Main Content -->
@@ -61,7 +58,7 @@
       </h1>
 
       <!-- Connection Status Component -->
-      <app-connection-status />
+      <connection-status />
     </div>
 
     <!-- Content Area -->

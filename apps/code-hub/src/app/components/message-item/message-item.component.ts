@@ -4,12 +4,12 @@ import { AutoRtlDirective } from '../../directives/auto-rtl.directive';
 import { ChatEvent } from '@codehub/shared-models';
 
 @Component({
-  selector: 'app-message-item',
+  selector: 'message-item',
   standalone: true,
   imports: [CommonModule, NgOptimizedImage, AutoRtlDirective],
   templateUrl: './message-item.component.html',
 })
-export class MessageItemComponent {
+export class MessageItem {
   event = input.required<ChatEvent>();
   currentUserId = input.required<string>();
 

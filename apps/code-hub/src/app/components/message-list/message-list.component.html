@@ -1,7 +1,7 @@
 <ul class="space-y-3 flex flex-col" role="list" aria-label="Message list">
   @for (entry of messages(); track entry.createdAt) {
   <li role="listitem">
-    <app-message-item [event]="entry" [currentUserId]="currentUserId()" />
+    <message-item [event]="entry" [currentUserId]="currentUserId()" />
   </li>
   }
   <li class="sr-only" aria-live="polite" aria-atomic="true">

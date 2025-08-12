@@ -117,7 +117,7 @@
       aria-relevant="additions"
       aria-label="Chat messages"
     >
-      <app-message-list
+      <message-list
         [messages]="messages()"
         [currentUserId]="currentUser().id"
       />
@@ -146,9 +146,6 @@
       </span>
     </div>
     }
-    <app-message-input
-      [userId]="currentUser().id"
-      (send)="onSendText($event)"
-    />
+    <message-input [userId]="currentUser().id" (send)="onSendText($event)" />
   </footer>
 </div>

@@ -6,12 +6,12 @@ import { AutoRtlDirective } from '../../directives/auto-rtl.directive';
 import { ChatService } from '../../services/chat.service';
 
 @Component({
-  selector: 'app-message-input',
+  selector: 'message-input',
   standalone: true,
   imports: [CommonModule, FormsModule, AutoRtlDirective],
   templateUrl: './message-input.component.html',
 })
-export class MessageInputComponent {
+export class MessageInput {
   readonly send = output<{
     content: string;
     isSentToBot: boolean;

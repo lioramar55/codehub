@@ -8,18 +8,13 @@ import {
 } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { ChatSidebarComponent } from '../chat-sidebar/chat-sidebar.component';
-import { ConnectionStatusComponent } from '../connection-status/connection-status.component';
+import { ChatSidebar } from '../chat-sidebar/chat-sidebar.component';
+import { ConnectionStatus } from '../connection-status/connection-status.component';
 
 @Component({
   selector: 'app-chat-layout',
   standalone: true,
-  imports: [
-    CommonModule,
-    RouterModule,
-    ChatSidebarComponent,
-    ConnectionStatusComponent,
-  ],
+  imports: [CommonModule, RouterModule, ChatSidebar, ConnectionStatus],
   templateUrl: './chat-layout.component.html',
 })
 export class ChatLayoutComponent implements OnInit, OnDestroy {

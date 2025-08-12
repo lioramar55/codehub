@@ -14,14 +14,14 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ChatService } from '../../services/chat.service';
 import { UserService } from '../../services/user.service';
 import { ThemeService } from '../../services/theme.service';
-import { MessageListComponent } from '../message-list/message-list.component';
-import { MessageInputComponent } from '../message-input/message-input.component';
+import { MessageList } from '../message-list/message-list.component';
+import { MessageInput } from '../message-input/message-input.component';
 import { Room } from '@codehub/shared-models';
 
 @Component({
   selector: 'app-chat-room',
   standalone: true,
-  imports: [CommonModule, MessageListComponent, MessageInputComponent],
+  imports: [CommonModule, MessageList, MessageInput],
   templateUrl: './chat-room.component.html',
 })
 export class ChatRoomComponent implements OnInit {
