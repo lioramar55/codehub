@@ -4,6 +4,7 @@ import { BotService as BotServiceClass } from '../services/bot';
 import { BOT_CONSTANTS, ERROR_MESSAGES } from './constants';
 import { MessageManager } from './message-manager';
 import { createUser } from '../services/user.repository';
+import { logError, logInfo, logWarn } from '../utils/logger';
 
 export class BotHandler {
   private messageTimestamps: Map<string, number[]> = new Map(); // roomId -> timestamps[]
@@ -20,6 +21,14 @@ export class BotHandler {
     roomId: string,
     isSentToBot = false
   ): Promise<void> {
+    logInfo('Handling user message', {
+      userId: author.id,
+      roomId,
+      isSentToBot,
+      contentLength: content.length,
+      isProgrammingQuestion: BotServiceClass.isProgrammingQuestion(content),
+    });
+
     // Upsert user (in case new info)
     await createUser(author);
 
@@ -35,7 +44,18 @@ export class BotHandler {
 
     // Trigger bot response if explicitly requested OR if it's a programming question
     if (isSentToBot || BotServiceClass.isProgrammingQuestion(content)) {
+      logInfo('Triggering bot response', {
+        roomId,
+        isSentToBot,
+        isProgrammingQuestion: BotServiceClass.isProgrammingQuestion(content),
+      });
       await this.handleBotResponse(socket, content, roomId);
+    } else {
+      logInfo('Bot response not triggered', {
+        roomId,
+        isSentToBot,
+        isProgrammingQuestion: BotServiceClass.isProgrammingQuestion(content),
+      });
     }
   }
 
@@ -45,14 +65,8 @@ export class BotHandler {
     roomId: string
   ): Promise<void> {
     try {
-      const isProgrammingQuestion =
-        BotServiceClass.isProgrammingQuestion(content);
-
-      if (!isProgrammingQuestion) {
-        return;
-      }
-
       if (this.isRateLimited(roomId)) {
+        logWarn('Bot response rate limited', { roomId });
         const rateLimitMessage = this.messageManager.createBotMessage(
           ERROR_MESSAGES.BOT_RATE_LIMIT,
           roomId
@@ -66,13 +80,25 @@ export class BotHandler {
       this.addTimestamp(roomId);
 
       // Get bot reply
+      logInfo('Requesting bot reply', {
+        roomId,
+        contentLength: content.length,
+      });
       const botReply = await BotServiceClass.askBot(content);
       const botMessage = this.messageManager.createBotMessage(botReply, roomId);
 
       await this.messageManager.saveMessage(botMessage);
       this.messageManager.broadcastMessage(botMessage);
+
+      logInfo('Bot response sent successfully', {
+        roomId,
+        replyLength: botReply.length,
+      });
     } catch (error) {
-      console.error('Bot error:', error);
+      logError(
+        error as Error,
+        `Bot Handler - handleBotResponse for room ${roomId}`
+      );
       const errorMessage = this.messageManager.createBotMessage(
         ERROR_MESSAGES.BOT_ERROR,
         roomId

@@ -6,7 +6,7 @@ import { Server } from 'socket.io';
 import morgan from 'morgan';
 import { setupSocket } from './realtime/socket';
 import { closePool, initializeDatabase } from './services/db';
-import logger, { stream, logInfo, logError } from './utils/logger';
+import { stream, logInfo, logError, logWarn } from './utils/logger';
 import path from 'path';
 
 const port = process.env.PORT ? Number(process.env.PORT) : 3000;
@@ -51,12 +51,18 @@ app.get('/health', (req, res) => {
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
     connections: io.engine.clientsCount,
+    botService: {
+      configured: !!process.env.GEMINI_API_KEY,
+      hasApiKey: !!process.env.GEMINI_API_KEY,
+    },
+    environment: process.env.NODE_ENV || 'development',
   };
 
   logInfo('Health check requested', {
     ip: req.ip,
     userAgent: req.get('User-Agent'),
     connections: healthData.connections,
+    botConfigured: healthData.botService.configured,
   });
 
   res.status(200).json(healthData);
@@ -68,6 +74,18 @@ httpServer.listen(port, () => {
     environment: process.env.NODE_ENV || 'development',
     nodeVersion: process.version,
   });
+
+  // Check bot service configuration
+  if (process.env.GEMINI_API_KEY) {
+    logInfo('Bot service configured', {
+      hasApiKey: true,
+      apiKeyLength: process.env.GEMINI_API_KEY.length,
+    });
+  } else {
+    logWarn('Bot service not configured - GEMINI_API_KEY missing', {
+      hasApiKey: false,
+    });
+  }
 
   initializeDatabase().catch((err) => {
     logError(err, 'Database initialization');
